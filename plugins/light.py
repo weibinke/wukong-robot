@@ -12,8 +12,6 @@ import openai
 import time
 
 logger = logging.getLogger(__name__)
-# 配置 OpenAI 认证密钥
-openai.api_key = "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"
 
 class Plugin(AbstractPlugin):
 
