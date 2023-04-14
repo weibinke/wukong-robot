@@ -106,3 +106,4 @@ class Plugin(AbstractPlugin):
 
     def isValid(self, text, parsed):
         return "本地音乐" in text
+        # return any(word in text for word in ["播放音乐", "放首歌", "放歌"]) 
