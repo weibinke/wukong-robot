@@ -325,4 +325,8 @@ weather:
     enable: false
     key: '心知天气 API Key'
 
-
+# 股票播报
+# 使用tushare api获取收盘信息https://tushare.pro/
+stock:
+    enable: false
+    key: 'tushare API Key'
