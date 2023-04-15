@@ -42,7 +42,11 @@ porcupine:
 # snowboy 离线唤醒
 # 建议使用 snowboy-seasalt (https://github.com/rhasspy/snowboy-seasalt)
 # 使用相同环境录入你的语音，以提升唤醒成功率和准确率
-hotword: 'snowboy.umdl'  # 唤醒词模型，如要自定义请放到 $HOME/.wukong 目录中
+hotword: # 唤醒词模型，数组类型，支持多个，如要自定义请放到 $HOME/.wukong 目录中
+    - 'jarvis.umdl'
+    - 'snowboy.umdl'
+# hotword: 'jarvis.umdl'  # 唤醒词模型，如要自定义请放到 $HOME/.wukong 目录中
+# hotword: 'qitiandashen.pmdl'  # 唤醒词模型，如要自定义请放到 $HOME/.w
 silent_threshold: 20 # 判断为静音的阈值。环境比较吵杂的地方可以适当调大
 recording_timeout: 15 # 录制的语音最大长度（秒）
 snowboy_token: your_token # 你的token，用于 train 命令训练语音
