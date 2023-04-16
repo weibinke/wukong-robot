@@ -97,3 +97,4 @@ venv.wukong
 node_modules
 server/templates/live2d/packages/extra
 venv.wukong
+.vscode/launch.json
