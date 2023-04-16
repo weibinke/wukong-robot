@@ -305,7 +305,7 @@ LocalPlayer:
 geek:
     max_silent_count: 20  # 当不说话的次数达到多少次后，主动退出极客模式
 
-statistic: true # 是否开启上报
+statistic: false # 是否开启上报
 
 #######################
 # 第三方插件的配置
