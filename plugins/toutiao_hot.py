@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
-import os
-import subprocess
-import time
-from robot import config, constants, logging
+from robot import logging
 from robot.sdk.AbstractPlugin import AbstractPlugin
 import requests
-from bs4 import BeautifulSoup
-import re
-import requests
-import openai
 import time
+import socket
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +27,10 @@ class Plugin(AbstractPlugin):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/B08C3901",
             "Referer": "https://www.toutiao.com/ch/news_hot/"
         }
+
+        logger.info("requesting")
         response = requests.get(url, params=params, headers=headers)
+        logger.info(f"request finished")
         json_data = response.json()
 
         # logger.info(f"createNews response={response},content={json_data}")
@@ -67,6 +64,44 @@ class Plugin(AbstractPlugin):
 
 
     def handle(self, text, parsed):
+        #  # TODO test
+        # logger.info("test 1 requesting")
+        # response = requests.get("https://www.baidu.com")
+        # logger.info(f"test 1 request finished")
+        # logger.info("test 2 requesting")
+
+        # url = "https://www.toutiao.com/api/pc/feed/?category=news_hot"
+        # class MyAdapter(requests.adapters.HTTPAdapter):
+
+        #     def init_poolmanager(self, *args, **kwargs):
+        #         kwargs['socket_options'] = [(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)]
+        #         super(MyAdapter, self).init_poolmanager(*args, **kwargs)
+
+        #     def proxy_manager_for(self, *args, **kwargs):
+        #         if 'source_address' in kwargs:
+        #             del kwargs['source_address']
+        #         return super(MyAdapter, self).proxy_manager_for(*args, **kwargs)
+
+        # session = requests.Session()
+        # session.mount('http://', MyAdapter())
+        # session.mount('https://', MyAdapter())
+
+        # response = session.get(
+        #     url,
+        #     timeout=10,
+        #     allow_redirects=True,
+        # )
+
+        # logger.info("test 2 request end")
+
+        # logger.info("test 3 request start")
+        # response = requests.get(
+        #     url,
+        #     timeout=10,
+        #     allow_redirects=True,
+        # )
+        # logger.info(f"test 3 request finished")
+
         self.say("正在为你抓取头条热榜：", cache=True)
         news = self.createNews()
         self.say(news)

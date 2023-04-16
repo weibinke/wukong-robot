@@ -8,12 +8,10 @@ from robot.sdk.AbstractPlugin import AbstractPlugin
 import requests
 from bs4 import BeautifulSoup
 import re
-import requests
 import openai
 import time
 
 logger = logging.getLogger(__name__)
-# 配置 OpenAI 认证密钥
 
 class Plugin(AbstractPlugin):
 
@@ -81,7 +79,7 @@ class Plugin(AbstractPlugin):
                 logger.error(e)
                 return "createNews 解析失败"
             
-        return f"微博热搜前三名是：{summary}"
+        return f"微博热搜前三名是：\n{summary}"
 
 
     def handle(self, text, parsed):
