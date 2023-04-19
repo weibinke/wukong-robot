@@ -18,19 +18,29 @@ class Plugin(AbstractPlugin):
         self.player = None
         self.song_list = None
 
+    # 获取子目录下所有.mp3文件路径，支持子目录递归，安全起见，只遍历一层子目录
     def get_song_list(self, path):
         if not os.path.exists(path) or not os.path.isdir(path):
             return []
-        song_list = list(
-            filter(lambda d: d.endswith(".mp3") or d.endswith("wav"), os.listdir(path))
-        )
-        return [os.path.join(path, song) for song in song_list]
+
+        song_list = []
+        for subdir in os.listdir(path):
+            subdir_path = os.path.join(path, subdir)
+            if os.path.isdir(subdir_path):
+                for file in os.listdir(subdir_path):
+                    if file.endswith(".mp3") or file.endswith(".wav"):
+                        song_list.append(os.path.join(subdir_path, file))
+            else:
+                if file.endswith(".mp3") or file.endswith(".wav"):
+                        song_list.append(os.path.join(subdir_path, file))
+
+        return song_list
 
     def init_music_player(self):
         self.song_list = self.get_song_list(config.get("/LocalPlayer/path"))
         if self.song_list == None:
             logger.error(f"{self.SLUG} 插件配置有误", stack_info=True)
-        logger.info(f"本地音乐列表：{self.song_list}")
+        logger.info(f"本地音乐列表：{self.song_list}，共{len(self.song_list)}首")
         return MusicPlayer(self.song_list, self)
 
     def handle(self, text, parsed):
