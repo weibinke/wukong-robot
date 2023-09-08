@@ -24,3 +24,6 @@ edge-tts
 nest_asyncio
 bs4
 tushare
+langchain
+gradio
+google-search-results

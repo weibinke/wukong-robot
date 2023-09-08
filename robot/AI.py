@@ -8,6 +8,7 @@ from uuid import getnode as get_mac
 from abc import ABCMeta, abstractmethod
 from robot import logging, config, utils
 from robot.sdk import unit
+from robot.sdk.GPTAIClient import GPTAgent
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +221,7 @@ class OPENAIRobot(AbstractRobot):
         self.stop_ai = stop_ai
         self.api_base = api_base if api_base else "https://api.openai.com/v1/chat"
         self.context = []
+        self.agent = GPTAgent(model=self.model,temperature=self.temperature,max_tokens=self.max_tokens,top_p=self.top_p,frequency_penalty=self.frequency_penalty,presence_penalty=self.presence_penalty,prefix=self.prefix,api_base=api_base)
 
     @classmethod
     def get_config(cls):
@@ -306,37 +308,40 @@ class OPENAIRobot(AbstractRobot):
         Arguments:
         texts -- user input, typically speech, to be parsed by a module
         """
-        msg = "".join(texts)
-        msg = utils.stripPunctuation(msg)
-        msg = self.prefix + msg  # 增加一段前缀
-        logger.info("msg: " + msg)
-        try:
-            respond = ""
-            self.context.append({"role": "user", "content": msg})
-            response = self.openai.Completion.create(
-                model=self.model,
-                messages=self.context,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens,
-                top_p=self.top_p,
-                frequency_penalty=self.frequency_penalty,
-                presence_penalty=self.presence_penalty,
-                stop=self.stop_ai,
-                api_base=self.api_base
-            )
-            message = response.choices[0].message
-            respond = message.content
-            self.context.append(message)
-            return respond
-        except self.openai.error.InvalidRequestError:
-            logger.warning("token超出长度限制，丢弃历史会话")
-            self.context = []
-            return self.chat(texts, parsed)
-        except Exception:
-            logger.critical(
-                "openai robot failed to response for %r", msg, exc_info=True
-            )
-            return "抱歉，OpenAI 回答失败"
+        # 改用GPTAIClient实现
+        return self.agent.chat(texts,parsed)
+
+        # msg = "".join(texts)
+        # msg = utils.stripPunctuation(msg)
+        # msg = self.prefix + msg  # 增加一段前缀
+        # logger.info("msg: " + msg)
+        # try:
+        #     respond = ""
+        #     self.context.append({"role": "user", "content": msg})
+        #     response = self.openai.Completion.create(
+        #         model=self.model,
+        #         messages=self.context,
+        #         temperature=self.temperature,
+        #         max_tokens=self.max_tokens,
+        #         top_p=self.top_p,
+        #         frequency_penalty=self.frequency_penalty,
+        #         presence_penalty=self.presence_penalty,
+        #         stop=self.stop_ai,
+        #         api_base=self.api_base
+        #     )
+        #     message = response.choices[0].message
+        #     respond = message.content
+        #     self.context.append(message)
+        #     return respond
+        # except self.openai.error.InvalidRequestError:
+        #     logger.warning("token超出长度限制，丢弃历史会话")
+        #     self.context = []
+        #     return self.chat(texts, parsed)
+        # except Exception:
+        #     logger.critical(
+        #         "openai robot failed to response for %r", msg, exc_info=True
+        #     )
+        #     return "抱歉，OpenAI 回答失败"
 
 
 def get_unknown_response():

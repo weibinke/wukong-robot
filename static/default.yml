@@ -330,3 +330,13 @@ weather:
 stock:
     enable: false
     key: 'tushare API Key'
+
+
+gpt_tool:
+     # SerpAPI API Key，用于gpt联网搜索， https://serpapi.com/
+    SERPAPI_API_KEY: "fbb9facf63336fb489ac1f66325446ee20248fff2004bf2e99aa8418adcba0d7"
+    
+    hass:
+        enable: true
+        url: "http://192.168.3.22:8123"   #切记加上http://，ip或者域名为你的HomeAssistant的主机
+        key: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmYWI3ZTBiMjAzY2Y0OWQzYWQyMzJlOTdiYTY5NTc0MSIsImlhdCI6MTY4MTkxNTIyOCwiZXhwIjoxOTk3Mjc1MjI4fQ.z-t72AVONjWP5Sfu1GhvTspPDTuOT9Y5NxmFJfCj0nw" # 密钥，注意 Bearer 不可少
