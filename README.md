@@ -52,7 +52,7 @@
 </p>
 
 * 模块化。功能插件、语音识别、语音合成、对话机器人都做到了高度模块化，第三方插件单独维护，方便继承和开发自己的插件。
-* 中文支持。集成百度、科大讯飞、阿里、腾讯、OpenAI Whisper、Apple 等多家中文语音识别和语音合成技术，且可以继续扩展。
+* 中文支持。集成百度、科大讯飞、阿里、腾讯、OpenAI Whisper、Apple、微软Edge、VITS声音克隆TTS 等多家中文语音识别和语音合成技术，且可以继续扩展。
 * 对话机器人支持。支持基于 [AnyQ](https://wukong.hahack.com/#/anyq) 的本地对话机器人，并支持接入图灵机器人、ChatGPT 等在线对话机器人。
 * 全局监听，离线唤醒。支持 [Porcupine](https://github.com/Picovoice/porcupine) 和 [snowboy](https://github.com/Kitt-AI/snowboy) 两套离线语音指令唤醒引擎，并支持 Muse [脑机唤醒](https://wukong.hahack.com/#/bci) 以及行空板摇一摇唤醒等其他唤醒方式。
 * 灵活可配置。支持定制机器人名字，支持选择语音识别和合成的插件。
@@ -86,6 +86,7 @@ wukong-robot 被唤醒后，用户的语音指令先经过 ASR 引擎进行 ASR 
   - [Google AIY Voice Kit + wukong-robot](https://www.bilibili.com/video/av81173082/)
   - [Siri 联动 wukong-robot + ChatGPT](https://www.bilibili.com/video/BV1yY4y1y7oW)
   - [小爱同学联动 wukong-robot](https://www.bilibili.com/video/BV1eg4y1b75Y)
+  - [教程：基于树莓派&wukong-robot&VITS的AI泠鸢开源智能音箱的初步实现（by @二维环状无限深势阱）](https://www.bilibili.com/video/BV1Sc411K7dv)
 * 后台管理端 Demo
   - 体验地址：https://bot.hahack.com  （体验用户名：wukong；体验密码：wukong@2019）
 
@@ -93,7 +94,7 @@ wukong-robot 被唤醒后，用户的语音指令先经过 ASR 引擎进行 ASR 
 
 ### Python 版本 ###
 
-wukong-robot 只支持 Python 3.7+，不支持 Python 2.x 。
+wukong-robot 只支持 Python >= 3.7 且 < 3.10 ，不支持 Python 2.x 。
 
 ### 设备要求 ###
 
