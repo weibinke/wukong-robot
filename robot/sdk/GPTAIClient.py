@@ -11,6 +11,9 @@ import os
 from robot import config
 from robot import logging
 from langchain.callbacks import ArgillaCallbackHandler, StdOutCallbackHandler
+import langchain
+
+langchain.debug = True
 
 OPENAI_API_KEY = config.get("/openai/openai_api_key")
 if(OPENAI_API_KEY):
@@ -52,21 +55,14 @@ class GPTAgent():
         OpenAI机器人
         """
 
-        argilla_callback = ArgillaCallbackHandler(
-            dataset_name="langchain-dataset",
-            api_url=os.environ["ARGILLA_API_URL"],
-            api_key=os.environ["ARGILLA_API_KEY"],
-        )
-        self.callbacks = [StdOutCallbackHandler(), argilla_callback]
-
-        self.llm=ChatOpenAI(model=model,temperature=temperature,api_base=api_base,verbose=True,callbacks=self.callbacks)
+        self.llm=ChatOpenAI(model=model,temperature=temperature,api_base=api_base,verbose=True)
         self.prefix = prefix
         self.init_agent(prefix = self.prefix)
         
         
     def init_agent(self,prefix=""):
 
-        tools = load_tools(["serpapi", "llm-math"], llm=self.llm,callbacks=self.callbacks)
+        tools = load_tools(["serpapi", "llm-math"], llm=self.llm)
 
         tools.append(
             Tool.from_function(
@@ -103,7 +99,7 @@ class GPTAgent():
         llm_chain = LLMChain(llm=self.llm,prompt=prompt)
         self.agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools, verbose=True)
         self.agent_chain = AgentExecutor.from_agent_and_tools(
-            agent=self.agent, tools=tools, verbose=True, memory=self.memory,callbacks=sel
+            agent=self.agent, tools=tools, verbose=True, memory=self.memory
         )
 
         # langchain有bug，得用这个才能开启完整的llm调试日志
