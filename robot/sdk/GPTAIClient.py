@@ -31,7 +31,10 @@ if(SERPAPI_API_KEY):
 BING_SUBSCRIPTION_KEY = config.get("/gpt_tool/BING_SUBSCRIPTION_KEY")
 if(BING_SUBSCRIPTION_KEY):
     os.environ["BING_SUBSCRIPTION_KEY"] = BING_SUBSCRIPTION_KEY
-    os.environ["BING_SEARCH_URL"] = "https://api.bing.microsoft.com/v7.0/search"
+
+BING_SEARCH_URL = config.get("/gpt_tool/BING_SEARCH_URL")
+if(BING_SEARCH_URL):
+    os.environ["BING_SEARCH_URL"] = BING_SEARCH_URL
 
 
 logger = logging.getLogger(__name__)
