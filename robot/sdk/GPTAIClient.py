@@ -15,6 +15,7 @@ import langchain
 from duckduckgo_search import DDGS
 from itertools import islice
 from datetime import datetime
+from robot.gptplugin.volume import VolumeControl
 
 langchain.debug = True
 
@@ -76,6 +77,7 @@ class GPTAgent():
         # tools = load_tools(["serpapi", "llm-math"], llm=self.llm)
         # tools = load_tools(["ddg-search", "llm-math"], llm=self.llm)
         tools = load_tools(["bing-search", "llm-math"], llm=self.llm)
+        tools.append(VolumeControl())
 
         tools.append(
             Tool.from_function(
