@@ -121,6 +121,8 @@ class Conversation(object):
             self.brain = Brain(self)
             self.brain.printPlugins()
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             logger.critical(f"对话初始化失败：{e}", stack_info=True)
 
     def checkRestore(self):
