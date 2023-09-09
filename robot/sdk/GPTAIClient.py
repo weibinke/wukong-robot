@@ -14,6 +14,7 @@ from langchain.callbacks import ArgillaCallbackHandler, StdOutCallbackHandler
 import langchain
 from duckduckgo_search import DDGS
 from itertools import islice
+from datetime import datetime
 
 langchain.debug = True
 
@@ -57,7 +58,7 @@ class GPTAgent():
         OpenAI机器人
         """
 
-        self.llm=ChatOpenAI(model=model,temperature=temperature,api_base=api_base,verbose=True)
+        self.llm=ChatOpenAI(model=model,temperature=temperature,openai_api_base=api_base,verbose=True)
         self.prefix = prefix
         self.init_agent(prefix = self.prefix)
         
@@ -66,6 +67,14 @@ class GPTAgent():
 
         # tools = load_tools(["serpapi", "llm-math"], llm=self.llm)
         tools = load_tools(["ddg-search", "llm-math"], llm=self.llm)
+
+        tools.append(
+            Tool.from_function(
+                func=self.get_information,
+                name="get_information",
+                description="useful when you need information about current datetime/user name/user city."
+            )
+        )
 
         tools.append(
             Tool.from_function(
@@ -135,6 +144,31 @@ class GPTAgent():
             return "抱歉，OpenAI 回答失败"
         
     def google_search_simple(self, query):
+        results = []
+        with DDGS() as ddgs:
+            ddgs_gen = ddgs.text(query, backend="lite")
+            for r in islice(ddgs_gen, 10):
+                results.append({
+                    "title": r["title"],
+                    "link": r["href"],
+                    "snippet": r["body"]
+                })
+        return str(results)
+    
+    def get_information(self, query):
+        """get information about current datetime/user name/user city."""
+        now = datetime.now()
+        city = "深圳"
+        name = "小彬"
+        data = {
+            "datetime": str(now),
+            "user city": city,
+            "user name": name
+        }
+        result = json.dumps(data)
+
+        return f"这是我的个人信息。{result}。"
+
         results = []
         with DDGS() as ddgs:
             ddgs_gen = ddgs.text(query, backend="lite")
