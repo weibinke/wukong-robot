@@ -65,9 +65,9 @@ class Conversation(object):
     def _ttsAction(self, msg, cache, index, onCompleted=None):
         if msg:
             voice = ""
-            if utils.getCache(msg):
+            if utils.getCache(self.tts.SLUG,msg):
                 logger.info(f"第{index}段TTS命中缓存，播放缓存语音")
-                voice = utils.getCache(msg)
+                voice = utils.getCache(self.tts.SLUG,msg)
                 while index != self.tts_index:
                     # 阻塞直到轮到这个音频播放
                     continue
@@ -84,7 +84,7 @@ class Conversation(object):
                     voice = self.tts.get_speech(msg)
                     logger.info(f"第{index}段TTS合成成功。msg: {msg}")
                     # save cache
-                    utils.saveCache(voice = voice,msg=msg)
+                    utils.saveCache(self.tts.SLUG,voice = voice,msg=msg)
                     while index != self.tts_index:
                         # 阻塞直到轮到这个音频播放
                         continue
