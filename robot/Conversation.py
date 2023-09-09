@@ -83,6 +83,8 @@ class Conversation(object):
                 try:
                     voice = self.tts.get_speech(msg)
                     logger.info(f"第{index}段TTS合成成功。msg: {msg}")
+                    # save cache
+                    utils.saveCache(voice = voice,msg=msg)
                     while index != self.tts_index:
                         # 阻塞直到轮到这个音频播放
                         continue
