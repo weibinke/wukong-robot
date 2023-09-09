@@ -93,10 +93,10 @@ class GPTAgent():
                 )
             )
 
-        prefix = f"""{prefix}\nHave a conversation with a human, answering the following questions as best you can. You have access to the following tools:"""
+        prefix = f"""{prefix}\nOnce you have provided the final answer, the conversation should end immediately.Do not include any URLs in your responses. You have access to the following tools:"""
         suffix = """Begin!"
 
-        ChatHistory:\n{chat_history}\n
+        ChatHistory:{chat_history}
         Question: {input}
         {agent_scratchpad}"""
 
@@ -190,13 +190,6 @@ class GPTAgent():
         token = config.get("/gpt_tool/hass/key","")
 
         '''
-        curl \
-        -H "Authorization: Bearer xx" \
-        -H "Content-Type: application/json" \
-        -d '{"entity_id": "light.yeelink_lamp4_1ba3_light"}' \
-        http://192.168.3.22:8123/api/services/light/turn_on
-
-
         控制小爱音箱执行指令。
         curl \
         -H "Authorization: Bearer xx" \
@@ -224,7 +217,9 @@ class GPTAgent():
                                 headers=headers,
                                 data=json.dumps(data))
         
-        return "已经执行命令：" + command + ",result=" + response.text
+        logger.info("命令执行成功。：" + command + ",result=" + response.text)
+        
+        return "执行成功."
 
     def reset_conversation(self,input="") -> str:
         '''
@@ -232,5 +227,5 @@ class GPTAgent():
         '''
         logger.info("reset_conversation")
         self.init_agent(self.prefix)
-        return "已经完成操作。"
+        return "执行成功。"
         

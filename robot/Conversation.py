@@ -278,7 +278,7 @@ class Conversation(object):
             self.say("抱歉，刚刚没听清，能再说一遍吗？", cache=True)
             self.hasPardon = True
         else:
-            self.say("没听清呢")
+            self.say("没听清呢", cache=True)
             self.hasPardon = False
 
     def _tts_line(self, line, cache, index=0, onCompleted=None):
