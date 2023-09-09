@@ -28,6 +28,11 @@ if(SERPAPI_API_KEY):
     os.environ["SERPAPI_API_KEY"] = SERPAPI_API_KEY
     SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 
+BING_SUBSCRIPTION_KEY = config.get("/gpt_tool/BING_SUBSCRIPTION_KEY")
+if(BING_SUBSCRIPTION_KEY):
+    os.environ["BING_SUBSCRIPTION_KEY"] = BING_SUBSCRIPTION_KEY
+    os.environ["BING_SEARCH_URL"] = "https://api.bing.microsoft.com/v7.0/search"
+
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +71,8 @@ class GPTAgent():
     def init_agent(self,prefix=""):
 
         # tools = load_tools(["serpapi", "llm-math"], llm=self.llm)
-        tools = load_tools(["ddg-search", "llm-math"], llm=self.llm)
+        # tools = load_tools(["ddg-search", "llm-math"], llm=self.llm)
+        tools = load_tools(["bing-search", "llm-math"], llm=self.llm)
 
         tools.append(
             Tool.from_function(
