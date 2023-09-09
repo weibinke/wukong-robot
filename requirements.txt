@@ -27,3 +27,4 @@ tushare
 langchain
 gradio
 google-search-results
+duckduckgo-search

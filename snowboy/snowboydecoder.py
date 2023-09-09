@@ -387,6 +387,7 @@ class HotwordDetector(object):
                     continue
 
             elif state == "ACTIVE":
+                # logger.info("get autio data,state=ACTIVE, status=" + str(status))
                 stopRecording = False
                 if recordingCount > recording_timeout:
                     stopRecording = True

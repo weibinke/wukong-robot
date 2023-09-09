@@ -12,6 +12,8 @@ from robot import config
 from robot import logging
 from langchain.callbacks import ArgillaCallbackHandler, StdOutCallbackHandler
 import langchain
+from duckduckgo_search import DDGS
+from itertools import islice
 
 langchain.debug = True
 
@@ -62,7 +64,8 @@ class GPTAgent():
         
     def init_agent(self,prefix=""):
 
-        tools = load_tools(["serpapi", "llm-math"], llm=self.llm)
+        # tools = load_tools(["serpapi", "llm-math"], llm=self.llm)
+        tools = load_tools(["ddg-search", "llm-math"], llm=self.llm)
 
         tools.append(
             Tool.from_function(
@@ -84,7 +87,7 @@ class GPTAgent():
         prefix = f"""{prefix}\nHave a conversation with a human, answering the following questions as best you can. You have access to the following tools:"""
         suffix = """Begin!"
 
-        {chat_history}
+        ChatHistory:\n{chat_history}\n
         Question: {input}
         {agent_scratchpad}"""
 
@@ -131,6 +134,18 @@ class GPTAgent():
             )
             return "抱歉，OpenAI 回答失败"
         
+    def google_search_simple(self, query):
+        results = []
+        with DDGS() as ddgs:
+            ddgs_gen = ddgs.text(query, backend="lite")
+            for r in islice(ddgs_gen, 10):
+                results.append({
+                    "title": r["title"],
+                    "link": r["href"],
+                    "snippet": r["body"]
+                })
+        return str(results)
+    
     def control_device(self, command: str) -> str:
         """useful when you need to control smart device. The input is a command that can be given to the Xiaoai speaker, for example: 主卧开灯."""
         logger.info("control_device command=" + command)
