@@ -65,7 +65,7 @@ class VolumeControl(BaseTool):
             
         elif system == "Linux":
             res = subprocess.run(
-                ["amixer get Master| grep -o -m 1 '[0-9]\+%' | grep -o '[0-9]\+'"],
+                ["amixer get Master|grep -o -m 1 '[0-9]\+%'"],
                 shell=True,
                 capture_output=True,
                 universal_newlines=True,
