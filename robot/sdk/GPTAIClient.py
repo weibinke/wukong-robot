@@ -2,6 +2,7 @@
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
 from langchain import OpenAI, LLMChain
+import openai
 from langchain.agents import ZeroShotAgent, Tool, AgentExecutor
 from langchain.agents import load_tools
 from langchain.agents import initialize_agent
@@ -16,6 +17,7 @@ from duckduckgo_search import DDGS
 from itertools import islice
 from datetime import datetime
 from robot.gptplugin.volume import VolumeControl
+from robot.gptplugin.weather import Weather
 
 langchain.debug = True
 
@@ -78,6 +80,7 @@ class GPTAgent():
         # tools = load_tools(["ddg-search", "llm-math"], llm=self.llm)
         tools = load_tools(["bing-search", "llm-math"], llm=self.llm)
         tools.append(VolumeControl())
+        tools.append(Weather())
 
         tools.append(
             Tool.from_function(
@@ -141,10 +144,14 @@ class GPTAgent():
             respond = self.agent_chain.run(input=texts)
             logger.info("gpt chat result:" + respond)
             return respond
-        # except self.openai.error.InvalidRequestError:
-        #     logger.warning("token超出长度限制，丢弃历史会话")
-        #     self.memory.clear()
-        #     return self.chat(texts, parsed)
+        except openai.error.InvalidRequestError as e:
+            import traceback
+            traceback.print_exc()
+            logger.critical("openai robot failed to response for %r", texts, exc_info=True)
+            logger.warning("token超出长度限制，丢弃历史会话")
+            # self.memory.clear()
+            # return self.chat(texts, parsed)
+            return "抱歉，Token长度超了。"
         
         except Exception as e:
             import traceback

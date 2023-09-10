@@ -343,4 +343,9 @@ gpt_tool:
         url: "http://192.168.3.22:8123"   #切记加上http://，ip或者域名为你的HomeAssistant的主机
         # 密钥，注意 Bearer 不可少
         key: "Bearer xxxx" 
-
+    
+    # 天气
+    # 使用心知天气的接口
+    # https://www.seniverse.com/
+    weather:
+        key: ''
