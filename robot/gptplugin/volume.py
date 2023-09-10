@@ -34,7 +34,7 @@ class VolumeControl(BaseTool):
             else:
                 current_volume = self.get_volume()
 
-        return f"执行成功，当前音量：{current_volume}"
+        return f"执行成功，当前音量：{current_volume}."
             
         
     # end def
