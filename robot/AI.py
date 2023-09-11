@@ -309,7 +309,7 @@ class OPENAIRobot(AbstractRobot):
         texts -- user input, typically speech, to be parsed by a module
         """
         # 改用GPTAIClient实现
-        return self.agent.chat(texts,parsed)
+        return self.agent.chat(texts)
 
         # msg = "".join(texts)
         # msg = utils.stripPunctuation(msg)

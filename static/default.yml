@@ -338,6 +338,9 @@ gpt_tool:
     BING_SUBSCRIPTION_KEY: ""
     BING_SEARCH_URL: "https://api.bing.microsoft.com/v7.0/search/"
 
+    # 会话上下文有效期，超过这个时间没对话，则清空上下文，减少token消耗，单位是秒
+    context_expiration: 600
+    
     hass:
         enable: true
         url: "http://192.168.3.22:8123"   #切记加上http://，ip或者域名为你的HomeAssistant的主机

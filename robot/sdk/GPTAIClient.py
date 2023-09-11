@@ -15,9 +15,9 @@ from langchain.callbacks import ArgillaCallbackHandler, StdOutCallbackHandler
 import langchain
 from duckduckgo_search import DDGS
 from itertools import islice
-from datetime import datetime
 from robot.gptplugin.volume import VolumeControl
 from robot.gptplugin.weather import Weather
+from datetime import datetime, timedelta
 
 langchain.debug = True
 
@@ -52,6 +52,8 @@ from langchain.memory import ConversationBufferMemory
 from langchain.prompts import MessagesPlaceholder
 import requests
 import json
+
+context_expiration = config.get("/gpt_tool/context_expiration",600)
 class GPTAgent():
 
     def __init__(
@@ -72,6 +74,7 @@ class GPTAgent():
         self.llm=ChatOpenAI(model=model,temperature=temperature,openai_api_base=api_base,verbose=True)
         self.prefix = prefix
         self.init_agent(prefix = self.prefix)
+        self.last_chat_time = None
         
         
     def init_agent(self,prefix=""):
@@ -132,13 +135,16 @@ class GPTAgent():
         self.agent_chain.agent.llm_chain.verbose=True        
 
 
-    def chat(self, texts, parsed):
-        """
-        使用OpenAI机器人聊天
+    def chat(self, texts):
 
-        Arguments:
-        texts -- user input, typically speech, to be parsed by a module
-        """
+        # 如果上一次聊天超过一段时间了，则清空张上下文，减少token消耗
+        current_time = datetime.now()
+        if (self.last_chat_time is not None):
+            time_difference = current_time - self.last_chat_time
+            if time_difference > timedelta(seconds=context_expiration):
+                self.reset_conversation()
+
+        self.last_chat_time = current_time
         
         try:
             respond = self.agent_chain.run(input=texts)
