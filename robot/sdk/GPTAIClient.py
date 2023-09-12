@@ -1,23 +1,21 @@
 # prompt template + STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION Agent + memory
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import LLMChain
-from langchain import OpenAI, LLMChain
-import openai
-from langchain.agents import ZeroShotAgent, Tool, AgentExecutor
-from langchain.agents import load_tools
-from langchain.agents import initialize_agent
-from langchain.agents import AgentType
-from langchain.tools import BaseTool, StructuredTool, Tool, tool
 import os
-from robot import config
-from robot import logging
-from langchain.callbacks import ArgillaCallbackHandler, StdOutCallbackHandler
+from datetime import datetime, timedelta
+from itertools import islice
 import langchain
 from duckduckgo_search import DDGS
-from itertools import islice
+from langchain.chat_models import ChatOpenAI
+import openai
+from langchain.agents import (AgentType, Tool, initialize_agent, load_tools)
+from langchain.memory import ConversationBufferMemory
+from langchain.tools import Tool, tool
+from langchain.utilities import SerpAPIWrapper
+
+from robot import config, logging
 from robot.gptplugin.volume import VolumeControl
 from robot.gptplugin.weather import Weather
-from datetime import datetime, timedelta
+import json
+import requests
 
 langchain.debug = True
 
@@ -42,17 +40,6 @@ if(BING_SEARCH_URL):
 
 logger = logging.getLogger(__name__)
 
-from langchain.prompts.chat import (
-    PromptTemplate,
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
-from langchain.memory import ConversationBufferMemory
-from langchain.prompts import MessagesPlaceholder
-import requests
-import json
-
 context_expiration = config.get("/gpt_tool/context_expiration",600)
 class GPTAgent():
 
@@ -76,7 +63,8 @@ class GPTAgent():
         self.init_agent(prefix = self.prefix)
         self.last_chat_time = None
         
-        
+    # use chat_conversation_agent
+    # https://python.langchain.com/docs/modules/agents/agent_types/chat_conversation_agent
     def init_agent(self,prefix=""):
 
         # tools = load_tools(["serpapi", "llm-math"], llm=self.llm)
@@ -110,30 +98,22 @@ class GPTAgent():
                 )
             )
 
-        prefix = f"""{prefix}\nOnce you have provided the final answer, the conversation should end immediately.Do not include any URLs in your responses. You have access to the following tools:"""
-        suffix = """Begin!"
+        PREFIX = f"""{prefix}Assistant is a large language model trained by OpenAI.
 
-        ChatHistory:{chat_history}
-        Question: {input}
-        {agent_scratchpad}"""
+Assistant is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
 
-        prompt = ZeroShotAgent.create_prompt(
-            tools,
-            prefix=prefix,
-            suffix=suffix,
-            input_variables=["input", "chat_history", "agent_scratchpad"],
-        )
-        self.memory = ConversationBufferMemory(memory_key="chat_history")
+Assistant is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Assistant is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
 
-        llm_chain = LLMChain(llm=self.llm,prompt=prompt)
-        self.agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools, verbose=True)
-        self.agent_chain = AgentExecutor.from_agent_and_tools(
-            agent=self.agent, tools=tools, verbose=True, memory=self.memory
-        )
+Overall, Assistant is a powerful system that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether you need help with a specific question or just want to have a conversation about a particular topic, Assistant is here to assist."""
+
+        self.memory = ConversationBufferMemory(memory_key="chat_history",return_messages=True)
+        # self.agent_chain = initialize_agent(tools, self.llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=self.memory)
+        self.agent_chain = initialize_agent(tools, self.llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=self.memory,
+                                            agent_kwargs={'prefix':PREFIX}
+                                            )
 
         # langchain有bug，得用这个才能开启完整的llm调试日志
-        self.agent_chain.agent.llm_chain.verbose=True        
-
+        self.agent_chain.agent.llm_chain.verbose=True      
 
     def chat(self, texts):
 
