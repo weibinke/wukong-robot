@@ -489,56 +489,58 @@ settings = {
     "template_path": os.path.join(constants.APP_PATH, "server/templates"),
     "static_path": os.path.join(constants.APP_PATH, "server/static"),
     "login_url": "/login",
-    "debug":True, # 一般为False，开发网页过程设置为true，禁用缓存，调试更方便
+    "debug":False, # 一般为False，开发网页过程设置为true，禁用缓存，调试更方便
 }
-
-application = tornado.web.Application(
-    [
-        (r"/", MainHandler),
-        (r"/index_new", NewMainHandler),
-        (r"/login", LoginHandler),
-        (r"/history", GetHistoryHandler),
-        (r"/chat", ChatHandler),
-        (r"/websocket", ChatWebSocketHandler),
-        (r"/chat/updates", MessageUpdatesHandler),
-        (r"/config", ConfigHandler),
-        (r"/configpage", ConfigPageHandler),
-        (r"/operate", OperateHandler),
-        (r"/logpage", LogPageHandler),
-        (r"/log", GetLogHandler),
-        (r"/logout", LogoutHandler),
-        (r"/api", APIHandler),
-        (r"/qa", QAHandler),
-        (r"/upgrade", UpdateHandler),
-        (r"/donate", DonateHandler),
-        # 废弃老接口
-        (r"/getlog", GetLogHandler),
-        (r"/gethistory", GetHistoryHandler),
-        (r"/getconfig", ConfigHandler),
-        (r"/talk_status", TalkStatusHandler),
-        (
-            r"/photo/(.+\.(?:png|jpg|jpeg|bmp|gif|JPG|PNG|JPEG|BMP|GIF))",
-            tornado.web.StaticFileHandler,
-            {"path": config.get("/camera/dest_path", "server/static")},
-        ),
-        (
-            r"/audio/(.+\.(?:mp3|wav|pcm))",
-            tornado.web.StaticFileHandler,
-            {"path": constants.TEMP_PATH},
-        ),
-        (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": "server/static"}),
-        (r"/live2d/(.*)", tornado.web.StaticFileHandler, {"path": "server/templates/live2d"}),
-    ],
-    **settings,
-)
 
 
 def start_server(con, wk):
     global conversation, wukong
     conversation = con
     wukong = wk
+
     if config.get("/server/enable", False):
         port = config.get("/server/port", "5001")
+
+        application = tornado.web.Application(
+            [
+                (r"/", MainHandler),
+                (r"/index_new", NewMainHandler),
+                (r"/login", LoginHandler),
+                (r"/history", GetHistoryHandler),
+                (r"/chat", ChatHandler),
+                (r"/websocket", ChatWebSocketHandler),
+                (r"/chat/updates", MessageUpdatesHandler),
+                (r"/config", ConfigHandler),
+                (r"/configpage", ConfigPageHandler),
+                (r"/operate", OperateHandler),
+                (r"/logpage", LogPageHandler),
+                (r"/log", GetLogHandler),
+                (r"/logout", LogoutHandler),
+                (r"/api", APIHandler),
+                (r"/qa", QAHandler),
+                (r"/upgrade", UpdateHandler),
+                (r"/donate", DonateHandler),
+                # 废弃老接口
+                (r"/getlog", GetLogHandler),
+                (r"/gethistory", GetHistoryHandler),
+                (r"/getconfig", ConfigHandler),
+                (r"/talk_status", TalkStatusHandler),
+                (
+                    r"/photo/(.+\.(?:png|jpg|jpeg|bmp|gif|JPG|PNG|JPEG|BMP|GIF))",
+                    tornado.web.StaticFileHandler,
+                    {"path": config.get("/camera/dest_path", "server/static")},
+                ),
+                (
+                    r"/audio/(.+\.(?:mp3|wav|pcm))",
+                    tornado.web.StaticFileHandler,
+                    {"path": constants.TEMP_PATH},
+                ),
+                (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": "server/static"}),
+                (r"/live2d/(.*)", tornado.web.StaticFileHandler, {"path": "server/templates/live2d"}),
+            ],
+            **settings,
+        )
+
         try:
             asyncio.set_event_loop(asyncio.new_event_loop())
             application.listen(int(port))
