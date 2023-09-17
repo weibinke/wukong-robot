@@ -49,7 +49,8 @@ class Conversation(object):
         self.onSay = None
         self.onStream = None
         self.hasPardon = False
-        self.player = Player.SoxPlayer()
+        # player在reInit已经初始化过了，这里不需要重新创建，先注释掉
+        # self.player = Player.SoxPlayer()
         self.lifeCycleHandler = LifeCycleHandler(self)
         self.tts_count = 0
         self.tts_index = 0
