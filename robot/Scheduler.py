@@ -33,6 +33,7 @@ class Scheduler(object):
         self._jobs = []
         self._sched = BackgroundScheduler()
         self._sched.start()
+        self._sched._thread.setName("calendar_reminder")
         self.con = con
 
     def _get_datetime(self, norm_str):

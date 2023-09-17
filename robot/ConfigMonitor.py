@@ -14,6 +14,7 @@ class ConfigMonitor(FileSystemEventHandler):
 
     # 文件修改
     def on_modified(self, event):
+        logger.debug(f"on_modified,event:{event}")
         if event.is_directory:
             return
 
