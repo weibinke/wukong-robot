@@ -122,7 +122,7 @@ def upload_documents(host, enginename, port=8983, documents="", num_thread=1):
             if len(sub_batch) <= 0:
                 continue
             data = "[{}]".format(",".join(sub_batch))
-            task = threading.Thread(target=thread_upload, args=(data, mutex))
+            task = threading.Thread(target=thread_upload, name="solr_tool_uppload", args=(data, mutex))
             task.setDaemon(True)
             thread_task.append(task)
         for task in thread_task:

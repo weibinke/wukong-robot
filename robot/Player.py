@@ -80,10 +80,10 @@ class SoxPlayer(AbstractPlayer):
         # 创建一个锁用于保证同一时间只有一个音频在播放
         self.play_lock = threading.Lock()
         self.play_queue = queue.Queue()  # 播放队列
-        self.consumer_thread = threading.Thread(target=self.playLoop)
+        self.consumer_thread = threading.Thread(target=self.playLoop, name="player_consumer")
         self.consumer_thread.start()
         self.loop = asyncio.new_event_loop()  # 创建事件循环
-        self.thread_loop = threading.Thread(target=self.loop.run_forever)
+        self.thread_loop = threading.Thread(target=self.loop.run_forever,name="player_loop")
         self.thread_loop.start()
 
     def executeOnCompleted(self, res, onCompleted):

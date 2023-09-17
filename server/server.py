@@ -549,5 +549,5 @@ def start_server(con, wk):
 
 def run(conversation, wukong, debug=False):
     settings["debug"] = debug
-    t = threading.Thread(target=lambda: start_server(conversation, wukong))
+    t = threading.Thread(target=lambda: start_server(conversation, wukong),name="server_thread")
     t.start()

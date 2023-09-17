@@ -22,7 +22,7 @@ class Pixels:
 
         self.next = threading.Event()
         self.queue = Queue.Queue()
-        self.thread = threading.Thread(target=self._run)
+        self.thread = threading.Thread(target=self._run,name="driver_pixels")
         self.thread.daemon = True
         self.thread.start()
 
