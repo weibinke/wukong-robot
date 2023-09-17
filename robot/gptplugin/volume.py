@@ -45,12 +45,6 @@ class VolumeControl(BaseTool):
         """Use the tool."""
         return self.volume(query)
 
-    async def _arun(
-        self, query: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
-    ) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError("custom_search does not support async")
-    
     def get_volume(self):
         system = platform.system()
         volume = 0

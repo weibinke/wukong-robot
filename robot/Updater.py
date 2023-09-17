@@ -5,6 +5,7 @@ import semver
 from subprocess import call
 from robot import constants, logging
 from datetime import datetime, timedelta
+from robot import config
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.INFO)
@@ -12,6 +13,7 @@ logger.setLevel(level=logging.INFO)
 _updater = None
 URL = "https://service-e32kknxi-1253537070.ap-hongkong.apigateway.myqcloud.com/release/wukong"
 DEV_URL = "https://service-e32kknxi-1253537070.ap-hongkong.apigateway.myqcloud.com/release/wukong-dev"
+
 
 
 class Updater(object):
@@ -78,6 +80,10 @@ class Updater(object):
             return current
 
     def fetch(self):
+        if (not config.get("enable_update"),False):
+            logger.info("fetch update ignored. enable_update to true if you want it.")
+            return {}
+        
         global URL, DEV_URL
         url = URL
         now = datetime.now()

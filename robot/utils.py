@@ -270,14 +270,19 @@ def getCache(tts_slug,msg):
 
 def saveCache(tts_slug,voice, msg):
     """获取缓存的语音"""
-    _, ext = os.path.splitext(voice)
-    md5 = hashlib.md5(msg.encode("utf-8")).hexdigest()
-    target_dir = os.path.join(os.path.join(constants.TEMP_PATH, tts_slug))
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
-    target = os.path.join(target_dir, md5 + ext)
-    shutil.copyfile(voice, target)
-    return target
+    try:
+        _, ext = os.path.splitext(voice)
+        md5 = hashlib.md5(msg.encode("utf-8")).hexdigest()
+        target_dir = os.path.join(os.path.join(constants.TEMP_PATH, tts_slug))
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
+        target = os.path.join(target_dir, md5 + ext)
+        shutil.copyfile(voice, target)
+        return target
+    except:
+        logger.error(f"saveCache failed. msg={msg}")
+        return ""
+    
 
 
 def lruCache():

@@ -28,6 +28,7 @@ conversation, wukong = None, None
 commiting = False
 
 suggestions = [
+    "今天天气怎么样",
     "现在几点",
     "你吃饭了吗",
     "上海的天气",
@@ -71,11 +72,36 @@ class MainHandler(BaseHandler):
                 "index.html",
                 update_info=info,
                 suggestion=suggestion,
+                suggestions=suggestions,
                 notices=notices,
                 location=self.request.host,
             )
         else:
             self.render("index.html")
+
+
+class NewMainHandler(BaseHandler):
+    def get(self):
+        global conversation, wukong, suggestions
+        if not self.isValidated():
+            self.redirect("/login")
+            return
+        if conversation:
+            info = Updater.fetch()
+            suggestion = random.choice(suggestions)
+            notices = None
+            if "notices" in info:
+                notices = info["notices"]
+            self.render(
+                "index_new.html",
+                update_info=info,
+                suggestion=suggestion,
+                suggestions=suggestions,
+                notices=notices,
+                location=self.request.host,
+            )
+        else:
+            self.render("index_new.html")
 
 
 class MessageUpdatesHandler(BaseHandler):
@@ -85,6 +111,7 @@ class MessageUpdatesHandler(BaseHandler):
     """
 
     async def post(self):
+        logger.info("MessageUpdatesHandler post start")
         if not self.validate(self.get_argument("validate", default=None)):
             res = {"code": 1, "message": "illegal visit"}
             self.write(json.dumps(res))
@@ -106,6 +133,8 @@ class MessageUpdatesHandler(BaseHandler):
             res = {"code": 0, "message": "ok", "history": json.dumps(messages)}
             self.write(json.dumps(res))
         self.finish()
+        logger.info("MessageUpdatesHandler post end")
+        
 
     def on_connection_close(self):
         self.wait_future.cancel()
@@ -114,8 +143,6 @@ class MessageUpdatesHandler(BaseHandler):
 """
 负责跟前端通信，把机器人的响应内容传输给前端
 """
-
-
 class ChatWebSocketHandler(WebSocketHandler, BaseHandler):
     clients = set()
 
@@ -199,6 +226,29 @@ class ChatHandler(BaseHandler):
             res = {"code": 1, "message": "illegal visit"}
             self.write(json.dumps(res))
         self.finish()
+
+import asyncio
+class TalkStatusHandler(BaseHandler):
+    """
+    查询当前是否正在播放回答中
+    """
+
+    async def get(self):
+        logger.info("TalkStatusHandler post start")
+        global conversation
+        if not self.validate(self.get_argument("validate", default=None)):
+            res = {"code": 1, "message": "illegal visit"}
+            self.write(json.dumps(res))
+        else:
+            isPlaying =  conversation.player.is_playing()
+            res = {"code": 0, "message": "ok","isTalking": f"{isPlaying}"}
+            logger.info(f"TalkStatusHandler post end,isPlaying:{res}")
+            self.write(json.dumps(res))
+        self.finish()
+        
+
+    def on_connection_close(self):
+        self.wait_future.cancel()
 
 
 class GetHistoryHandler(BaseHandler):
@@ -439,12 +489,13 @@ settings = {
     "template_path": os.path.join(constants.APP_PATH, "server/templates"),
     "static_path": os.path.join(constants.APP_PATH, "server/static"),
     "login_url": "/login",
-    "debug": False,
+    "debug":True, # 一般为False，开发网页过程设置为true，禁用缓存，调试更方便
 }
 
 application = tornado.web.Application(
     [
         (r"/", MainHandler),
+        (r"/index_new", NewMainHandler),
         (r"/login", LoginHandler),
         (r"/history", GetHistoryHandler),
         (r"/chat", ChatHandler),
@@ -464,6 +515,7 @@ application = tornado.web.Application(
         (r"/getlog", GetLogHandler),
         (r"/gethistory", GetHistoryHandler),
         (r"/getconfig", ConfigHandler),
+        (r"/talk_status", TalkStatusHandler),
         (
             r"/photo/(.+\.(?:png|jpg|jpeg|bmp|gif|JPG|PNG|JPEG|BMP|GIF))",
             tornado.web.StaticFileHandler,
@@ -475,6 +527,7 @@ application = tornado.web.Application(
             {"path": constants.TEMP_PATH},
         ),
         (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": "server/static"}),
+        (r"/live2d/(.*)", tornado.web.StaticFileHandler, {"path": "server/templates/live2d"}),
     ],
     **settings,
 )

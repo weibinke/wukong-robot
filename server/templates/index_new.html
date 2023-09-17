@@ -7,19 +7,39 @@
 <link rel="stylesheet" href="{{static_url('default.min.css')}}" crossorigin="anonymous">
 <link rel="stylesheet" href="{{static_url('monokai-sublime.css')}}" crossorigin="anonymous">
 
+
 <style>
+  body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+  }
+
   .main_container {
-      display: flex;
+    display: flex;
+    flex: 1;
   }
-  .conversation_container{
-      width: 70%;
-      height: 100%;
+
+  .conversation_container {
+    width: 60%;
+    height: 100%;
   }
-  .live2d-container {
-      width: 30%;
-      height: 100%;
+
+  #live2d-container {
+    position: fixed;
+    right: 0;
+    width: 40%;
+    height: 100%;
+    background-color: transparent;
   }
 </style>
+
+<script src="static/pixi-live2d-display/live2dcubismcore.min.js"></script>
+<script src="static/pixi-live2d-display/live2d.min.js"></script>
+<script src="static/pixi-live2d-display/pixi.min.js"></script>
+<script src="static/pixi-live2d-display/index.min.js"></script>
+<script src="static/pixi-live2d-display/extra.min.js"></script>
 
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
   <a class="navbar-brand" href="/">XiaoYi-Robot</a>
@@ -67,18 +87,8 @@
   {% end %}
 </div>
 
-<div class="row-fluid">
-  <div class="span12">
-    <div class="btn-group">
-      <button class="btn btn-info">haru01</button> <button data-toggle="dropdown" class="btn dropdown-toggle"><span
-          class="caret"></span></button>
-      <ul class="dropdown-menu"></ul>
-    </div>
-  </div>
-</div>
-
 <div class="main_container" id="main_container">
-  <div class= "conversation_container" id="conversation_container">
+  <div class="conversation_container" id="conversation_container">
     <div class="history">
     </div><!-- <div class="history"> -->
 
@@ -87,13 +97,13 @@
         <form class="form-row" action="#">
           <label for="query" class="col-sm-2 col-form-label col-form-label-lg">说句话：</label>
           <div class="col-7">
-            <input type="text" class="form-control" name="query" id="query" placeholder="{{suggestion}}" list="my-datalist" required
-              autofocus>
-              <datalist id="my-datalist">
-                {% for item in suggestions %}
-                <option value="{{ item }}">
+            <input type="text" class="form-control" name="query" id="query" placeholder="{{suggestion}}"
+              list="my-datalist" required autofocus>
+            <datalist id="my-datalist">
+              {% for item in suggestions %}
+              <option value="{{ item }}">
                 {% end %}
-              </datalist>
+            </datalist>
           </div>
           &nbsp;
           <button type="submit" class="btn btn-primary mb-2 CHAT"><i class="fas fa-comment"></i> 发送</button>
@@ -102,96 +112,11 @@
     </div><!-- <div class="query-form"> -->
     <hr class="divider">
   </div>
-
-  <div class="live2d-container" id="live2d-container">
-  </div>
-  <script src="./static/L2Dwidget.min.js"></script>
-  <script type="text/javascript">
-    var selectAry = [
-      ["chitose"],
-      ["epsilon2.1", "epsilon2_1"],
-      ["gantzert_felixander", "gf"],
-      ["haru01"],
-      ["haru02"],
-      ["haruto"],
-      ["hibiki"],
-      ["hijiki"],
-      ["izumi"],
-      ["koharu"],
-      ["miku"],
-      ["nico"],
-      ["ni-j"],
-      ["nipsilon"],
-      ["nito"],
-      ["shizuku"],
-      ["tororo"],
-      ["tsumiki"],
-      ["Unitychan"],
-      ["wanko"],
-      ["z16"]
-    ];
-
-    selectAry.map((ary) => {
-      $(".dropdown-menu").append('<li class="selectClick">' + ary[0] + '</li>');
-    });
-
-    $(".selectClick").click(function (e) {
-      window.location.href = `${window.location.origin}${window.location.pathname}?id=${$(this).text().toLowerCase()}`;
-    })
-
-    function initL2Dwidget(selectId) {
-      let modalName = selectAry.find((item) => { return item[0].toLowerCase() == selectId });
-      console.log('modalName', modalName)
-      modalName = modalName && modalName[1] ? modalName[1] : selectId
-
-      L2Dwidget
-        .on('*', (name) => {
-          console.log('%c EVENT ' + '%c -> ' + name, 'background: #222; color: yellow', 'background: #fff; color: #000')
-        })
-        .init({
-          container: document.getElementById('live2d-container'),
-          dialog: {
-            // 开启对话框
-            enable: true,
-            script: {
-              // 当触摸到角色身体
-              'tap body': '你好啊',
-              // 当触摸到角色头部
-              'tap face': '需要什么帮忙吗',
-            }
-          },
-          display: {
-            position: 'right',
-            width: 400,
-            height: 1000
-          },
-          "model": { "jsonPath": "live2d/packages/live2d-widget-model-" + modalName + "/assets/" + selectId + ".model.json" },
-          "mobile": { "show": true, scale: 0.5 }
-        });
-    }
-
-    function getUrlQuery(name, url) {
-      if (!url) {
-        url = window.location.href;
-      }
-      name = name.replace(/[\[\]]/g, "\\$&");
-      let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-      if (!results) return null;
-      if (!results[2]) return '';
-      return decodeURIComponent(results[2].replace(/\+/g, " "));
-    }
-    let tId = getUrlQuery('id') || 'haru01';
-    $('.btn-info').text(tId);
-
-    initL2Dwidget(tId);
-
-  </script>
-
 </div>
-
+<div id="frame_control"></div>
+<div class="live2d-container" id="live2d-container">
+  <canvas id=canvas></canvas>
 </div>
-
 
 <br />
 
@@ -215,11 +140,12 @@
     </ul>
   </li>
 </ul>
+<script type="module" src="static/main_new.js"></script>
 
 <script src="./static/highlight.min.js"></script>
 <script src="./static/markdown-it.min.js"></script>
 <script src="{{static_url('main.js')}}" crossorigin="anonymous"></script>
-<script type="module" src="{{static_url('index.js')}}" crossorigin="anonymous"></script>
+<script type="module" src="{{static_url('index_new.js')}}" crossorigin="anonymous"></script>
 <script src="./static/recorder.min.js"></script>
 <script src="./static/progress.min.js"></script>
 {% end %}

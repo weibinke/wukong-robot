@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/starter-template.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/bubble.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/progressjs.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/default.min.css" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="/static/monokai-sublime.css'" crossorigin="anonymous"> -->
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live2d display control</title>
+    <script src="/static/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="/static/pixi-live2d-display/live2dcubismcore.min.js"></script>
+    <script src="/static/pixi-live2d-display/live2d.min.js"></script>
+    <script src="/static/pixi-live2d-display/pixi.min.js"></script>
+    <script src="/static/pixi-live2d-display/index.min.js"></script>
+    <script src="/static/pixi-live2d-display/extra.min.js"></script>
+
+    <div class="live2d-container" id="live2d-container">
+        <div class="row-fluid">
+            <select id="dropdown-menu"></select>
+        </div>
+
+        <div id="frame_control"></div>
+        <canvas id=canvas></canvas>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+
+</body>
+
+</html>

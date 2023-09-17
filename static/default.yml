@@ -19,6 +19,9 @@ server:
     # 强烈建议修改!!!
     validate: 'f4bde2a342c7c75aa276f78b26cfbd8a'
 
+# 是否启动更新检查
+enable_update: false
+
 # 热词唤醒机制
 # 可选值：
 # porcupine

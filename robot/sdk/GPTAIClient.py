@@ -14,8 +14,16 @@ from langchain.utilities import SerpAPIWrapper
 from robot import config, logging
 from robot.gptplugin.volume import VolumeControl
 from robot.gptplugin.weather import Weather
+from robot.gptplugin.search import SummaryWebpage
 import json
 import requests
+
+from typing import Union
+
+from langchain.agents import AgentOutputParser
+from langchain.agents.conversational_chat.prompt import FORMAT_INSTRUCTIONS
+from langchain.output_parsers.json import parse_json_markdown
+from langchain.schema import AgentAction, AgentFinish, OutputParserException
 
 langchain.debug = True
 
@@ -70,6 +78,7 @@ class GPTAgent():
         # tools = load_tools(["serpapi", "llm-math"], llm=self.llm)
         # tools = load_tools(["ddg-search", "llm-math"], llm=self.llm)
         tools = load_tools(["bing-search", "llm-math"], llm=self.llm)
+        tools.append(SummaryWebpage())
         tools.append(VolumeControl())
         tools.append(Weather())
 
@@ -77,7 +86,7 @@ class GPTAgent():
             Tool.from_function(
                 func=self.get_information,
                 name="get_information",
-                description="useful when you need information about current datetime/user name/user city."
+                description="get user informations, return user name and user city and current datetime."
             )
         )
 
@@ -107,9 +116,8 @@ Assistant is constantly learning and improving, and its capabilities are constan
 Overall, Assistant is a powerful system that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether you need help with a specific question or just want to have a conversation about a particular topic, Assistant is here to assist."""
 
         self.memory = ConversationBufferMemory(memory_key="chat_history",return_messages=True)
-        self.agent_chain = initialize_agent(tools, self.llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=self.memory,
-                                            agent_kwargs={'system_message':PREFIX}
-                                            )
+        parser = FixConvoOutputParser()
+        self.agent_chain = initialize_agent(tools, self.llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=self.memory,agent_kwargs={'system_message':PREFIX,'output_parser':parser})
 
         # langchain有bug，得用这个才能开启完整的llm调试日志
         self.agent_chain.agent.llm_chain.verbose=True      
@@ -168,7 +176,7 @@ Overall, Assistant is a powerful system that can help with a wide range of tasks
             "user city": city,
             "user name": name
         }
-        result = json.dumps(data)
+        result = json.dumps(data,ensure_ascii=False)
 
         return f"这是我的个人信息。{result}。"
 
@@ -232,3 +240,54 @@ Overall, Assistant is a powerful system that can help with a wide range of tasks
         self.init_agent(self.prefix)
         return "执行成功。"
         
+
+
+# Define a class that parses output for conversational agents
+class FixConvoOutputParser(AgentOutputParser):
+    """Output parser for the conversational agent."""
+
+    def get_format_instructions(self) -> str:
+        """Returns formatting instructions for the given output parser."""
+        return FORMAT_INSTRUCTIONS
+
+    def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
+        """Attempts to parse the given text into an AgentAction or AgentFinish.
+
+        Raises:
+             OutputParserException if parsing fails.
+        """
+        try:
+            # Attempt to parse the text into a structured format (assumed to be JSON
+            # stored as markdown)
+            response = parse_json_markdown(text)
+
+            # If the response contains an 'action' and 'action_input'
+            if "action" in response and "action_input" in response:
+                action, action_input = response["action"], response["action_input"]
+
+                # If the action indicates a final answer, return an AgentFinish
+                if action == "Final Answer":
+                    return AgentFinish({"output": action_input}, text)
+                else:
+                    # Otherwise, return an AgentAction with the specified action and
+                    # input
+                    return AgentAction(action, action_input, text)
+            else:
+                # # If the necessary keys aren't present in the response, raise an
+                # # exception
+                # raise OutputParserException(
+                #     f"Missing 'action' or 'action_input' in LLM output: {text}"
+                # )
+                # GPT 3.5 经常不会正确返回json，兼容下
+                logger.error("parse error, gpt does not response json formate. text=" + text)
+                return AgentFinish({"output": text}, text)
+        except Exception as e:
+            # # If any other exception is raised during parsing, also raise an
+            # # OutputParserException
+            # raise OutputParserException(f"Could not parse LLM output: {text}") from e
+            logger.error("parse error, gpt does not response json formate. text=" + text)
+            return AgentFinish({"output": text}, text)
+
+    @property
+    def _type(self) -> str:
+        return "conversational_chat"

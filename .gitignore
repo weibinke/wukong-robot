@@ -92,3 +92,7 @@ __pycache__
 venv.wukong
 .vscode/launch.json
 .vscode/settings.json
+
+
+node_modules
+server/templates/live2d/packages/extra

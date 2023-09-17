@@ -1,3 +1,5 @@
+import { startTalking } from './main_new.js';
+
 var md = window.markdownit({
     html: true,
     linkify: true,
@@ -43,17 +45,20 @@ function appendHistory(type, message, uuid, plugin) {
             `);
         }
 
+        console.log("before talk");
+        startTalking();
+        console.log("end talk");
         // 让L2Dwidget播报文字
-         console.log("appendHistory")
-         //获取对话框
-         var live2d_dialog = document.getElementsByClassName("live2d-widget-dialog")[0]
-         //显示对话框并把获取到的内容显示在对话框上
-         live2d_dialog.style.opacity=1
-         live2d_dialog.innerHTML = message
-         //五秒后隐藏对话框
-         window.setTimeout(()=>{
-             live2d_dialog.style.opacity=0
-         }, 5000);
+        //  console.log("appendHistory")
+        //  //获取对话框
+        //  var live2d_dialog = document.getElementsByClassName("live2d-widget-dialog")[0]
+        //  //显示对话框并把获取到的内容显示在对话框上
+        //  live2d_dialog.style.opacity=1
+        //  live2d_dialog.innerHTML = message
+        //  //五秒后隐藏对话框
+        //  window.setTimeout(()=>{
+        //      live2d_dialog.style.opacity=0
+        //  }, 5000);
     }
     $("#" + uuid).hide();
     $("#" + uuid).fadeIn(500, () => {
