@@ -62,6 +62,13 @@ class MainHandler(BaseHandler):
         if not self.isValidated():
             self.redirect("/login")
             return
+        
+        # 默认使用新首页，如果想要老首页，在参数加上home=old
+        index_type = self.get_argument("home", default="new") 
+        index_path = "index_new.html"
+        if (index_type == "old"):
+            index_path = "index.html"
+
         if conversation:
             info = Updater.fetch()
             suggestion = random.choice(suggestions)
@@ -69,7 +76,7 @@ class MainHandler(BaseHandler):
             if "notices" in info:
                 notices = info["notices"]
             self.render(
-                "index.html",
+                index_path,
                 update_info=info,
                 suggestion=suggestion,
                 suggestions=suggestions,
@@ -77,32 +84,7 @@ class MainHandler(BaseHandler):
                 location=self.request.host,
             )
         else:
-            self.render("index.html")
-
-
-class NewMainHandler(BaseHandler):
-    def get(self):
-        global conversation, wukong, suggestions
-        if not self.isValidated():
-            self.redirect("/login")
-            return
-        if conversation:
-            info = Updater.fetch()
-            suggestion = random.choice(suggestions)
-            notices = None
-            if "notices" in info:
-                notices = info["notices"]
-            self.render(
-                "index_new.html",
-                update_info=info,
-                suggestion=suggestion,
-                suggestions=suggestions,
-                notices=notices,
-                location=self.request.host,
-            )
-        else:
-            self.render("index_new.html")
-
+            self.render(index_path)
 
 class MessageUpdatesHandler(BaseHandler):
     """Long-polling request for new messages.
@@ -111,7 +93,7 @@ class MessageUpdatesHandler(BaseHandler):
     """
 
     async def post(self):
-        logger.info("MessageUpdatesHandler post start")
+        # logger.info("MessageUpdatesHandler post start")
         if not self.validate(self.get_argument("validate", default=None)):
             res = {"code": 1, "message": "illegal visit"}
             self.write(json.dumps(res))
@@ -133,7 +115,7 @@ class MessageUpdatesHandler(BaseHandler):
             res = {"code": 0, "message": "ok", "history": json.dumps(messages)}
             self.write(json.dumps(res))
         self.finish()
-        logger.info("MessageUpdatesHandler post end")
+        # logger.info("MessageUpdatesHandler post end")
         
 
     def on_connection_close(self):
@@ -234,7 +216,7 @@ class TalkStatusHandler(BaseHandler):
     """
 
     async def get(self):
-        logger.info("TalkStatusHandler post start")
+        # logger.info("TalkStatusHandler post start")
         global conversation
         if not self.validate(self.get_argument("validate", default=None)):
             res = {"code": 1, "message": "illegal visit"}
@@ -242,7 +224,7 @@ class TalkStatusHandler(BaseHandler):
         else:
             isPlaying =  conversation.player.is_playing()
             res = {"code": 0, "message": "ok","isTalking": f"{isPlaying}"}
-            logger.info(f"TalkStatusHandler post end,isPlaying:{res}")
+            # logger.info(f"TalkStatusHandler post end,isPlaying:{res}")
             self.write(json.dumps(res))
         self.finish()
         
@@ -504,7 +486,6 @@ def start_server(con, wk):
         application = tornado.web.Application(
             [
                 (r"/", MainHandler),
-                (r"/index_new", NewMainHandler),
                 (r"/login", LoginHandler),
                 (r"/history", GetHistoryHandler),
                 (r"/chat", ChatHandler),

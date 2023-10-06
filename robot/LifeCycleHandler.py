@@ -65,6 +65,8 @@ class LifeCycleHandler(object):
         # Muse 头环
         self._init_muse()
 
+        self.beep_player = Player.SoxPlayer()
+
     def _read_reminders(self):
         logger.info("重新加载提醒信息")
         if os.path.exists(LOCAL_REMINDER):
@@ -156,18 +158,18 @@ class LifeCycleHandler(object):
             self._conversation.doResponse(query)
             self._wakeup.clear()
 
-    def _beep_hi(self, onCompleted=None):
-        Player.play(constants.getData("beep_hi.wav"), onCompleted)
+    def _beep_hi(self):
+        self.beep_player.play(constants.getData("beep_hi.wav"))
 
     def _beep_lo(self):
-        Player.play(constants.getData("beep_lo.wav"))
+        self.beep_player.play(constants.getData("beep_lo.wav"))
 
-    def onWakeup(self, onCompleted=None):
+    def onWakeup(self):
         """
         唤醒并进入录音的状态
         """
         logger.info("onWakeup")
-        self._beep_hi(onCompleted=onCompleted)
+        self._beep_hi()
         if config.get("/LED/enable", False):
             LED.wakeup()
         self._unihiker and self._unihiker.record(1, "我正在聆听...")

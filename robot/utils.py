@@ -258,22 +258,22 @@ def getTimemStap():
     return str(time.time()).replace(".", "")
 
 
-def getCache(tts_slug,msg):
+def getCache(cache_folder,msg):
     """获取缓存的语音"""
     md5 = hashlib.md5(msg.encode("utf-8")).hexdigest()
     cache_paths = [
-        os.path.join(os.path.join(constants.TEMP_PATH,tts_slug), md5 + ext)
+        os.path.join(os.path.join(constants.TEMP_PATH,cache_folder), md5 + ext)
         for ext in [".mp3", ".wav", ".asiff"]
     ]
     return next((path for path in cache_paths if os.path.exists(path)), None)
 
 
-def saveCache(tts_slug,voice, msg):
+def saveCache(path,voice, msg):
     """获取缓存的语音"""
     try:
         _, ext = os.path.splitext(voice)
         md5 = hashlib.md5(msg.encode("utf-8")).hexdigest()
-        target_dir = os.path.join(os.path.join(constants.TEMP_PATH, tts_slug))
+        target_dir = os.path.join(os.path.join(constants.TEMP_PATH, path))
         if not os.path.exists(target_dir):
             os.makedirs(target_dir)
         target = os.path.join(target_dir, md5 + ext)

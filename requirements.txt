@@ -27,3 +27,5 @@ langchain
 gradio
 google-search-results
 duckduckgo-search
+yfinance
+langchainhub

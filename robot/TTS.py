@@ -45,6 +45,16 @@ class AbstractTTS(object):
     def get_speech(self, phrase):
         pass
 
+    def get_cache_subpath(self):
+        # 获取缓存路径的子路径，默认是SLUG，如果有不同音色，可以重写加上音色标记
+        if hasattr(self, 'voice'):
+            return self.SLUG + "/" + self.voice
+        elif hasattr(self,'speaker_id'):
+            return self.SLUG + "/" + self.speaker_id
+        elif hasattr(self,'voiceType'):
+            return self.SLUG + "/" + self.voiceType
+        else:
+            return self.SLUG
 
 class HanTTS(AbstractTTS):
     """
@@ -170,13 +180,8 @@ class AzureTTS(AbstractTTS):
             "User-Agent": "curl",
         }
         self.sess = requests.session()
-        body = ElementTree.Element("speak", version="1.0")
-        body.set("xml:lang", "en-us")
-        vc = ElementTree.SubElement(body, "voice")
-        vc.set("xml:lang", lang)
-        vc.set("name", voice)
-        self.body = body
-        self.vc = vc
+        self.lang = lang
+        self.voice = voice
 
     @classmethod
     def get_config(cls):
@@ -184,11 +189,17 @@ class AzureTTS(AbstractTTS):
         return config.get("azure_yuyin", {})
 
     def get_speech(self, phrase):
-        self.vc.text = phrase
+        # bugfix, 原来的实现把body和vc作为成员变量，多次请求会串内容
+        body = ElementTree.Element("speak", version="1.0")
+        body.set("xml:lang", "en-us")
+        vc = ElementTree.SubElement(body, "voice")
+        vc.set("xml:lang", self.lang)
+        vc.set("name", self.voice)
+        vc.text = phrase
         result = self.sess.post(
             self.post_url,
             headers=self.post_header,
-            data=ElementTree.tostring(self.body),
+            data=ElementTree.tostring(body),
         )
         # 识别正确返回语音二进制,http状态码为200
         if result.status_code == 200:
@@ -196,7 +207,7 @@ class AzureTTS(AbstractTTS):
             logger.info(f"{self.SLUG} 语音合成成功，合成路径：{tmpfile}")
             return tmpfile
         else:
-            logger.critical(f"{self.SLUG} 合成失败！", stack_info=True)
+            logger.critical(f"{self.SLUG} 合成失败！phrase:{phrase},result:{result.text}", stack_info=True)
 
 
 class BaiduTTS(AbstractTTS):

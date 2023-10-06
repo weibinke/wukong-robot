@@ -65,10 +65,9 @@ class Conversation(object):
 
     def _ttsAction(self, msg, cache, index, onCompleted=None):
         if msg:
-            voice = ""
-            if utils.getCache(self.tts.SLUG,msg):
+            voice = utils.getCache(self.tts.get_cache_subpath(),msg)
+            if voice:
                 logger.info(f"第{index}段TTS命中缓存，播放缓存语音")
-                voice = utils.getCache(self.tts.SLUG,msg)
                 while index != self.tts_index:
                     # 阻塞直到轮到这个音频播放
                     continue
@@ -85,7 +84,7 @@ class Conversation(object):
                     voice = self.tts.get_speech(msg)
                     logger.info(f"第{index}段TTS合成成功。msg: {msg}")
                     # save cache
-                    utils.saveCache(self.tts.SLUG,voice = voice,msg=msg)
+                    utils.saveCache(self.tts.get_cache_subpath(),voice = voice,msg=msg)
                     while index != self.tts_index:
                         # 阻塞直到轮到这个音频播放
                         continue
@@ -171,12 +170,12 @@ class Conversation(object):
             else:
                 # 没命中技能，使用机器人回复
                 if self.ai.SLUG == "openai":
-                    # stream = self.ai.stream_chat(query)
-                    # self.stream_say(stream, True, onCompleted=self.checkRestore)
+                    # TODO 暂时先不用steam模式，还有些要优化
+                    stream = self.ai.stream_chat(query)
+                    self.stream_say(stream, True, onCompleted=self.checkRestore)
 
-                    # TODO 暂时先不用steam模式
-                    msg = self.ai.chat(query, parsed)
-                    self.say(msg, True, onCompleted=self.checkRestore)
+                    # msg = self.ai.chat(query, parsed)
+                    # self.say(msg, True, onCompleted=self.checkRestore)
                 else:
                     msg = self.ai.chat(query, parsed)
                     self.say(msg, True, onCompleted=self.checkRestore)
@@ -364,6 +363,8 @@ class Conversation(object):
         index = 0
         skip_tts = False
         for data in stream():
+            # 把换行转义一下
+            data = data.replace("\\n", "\n")
             if self.onStream:
                 self.onStream(data, resp_uuid)
             line += data

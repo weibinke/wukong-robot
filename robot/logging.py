@@ -54,7 +54,7 @@ def getLogger(name):
     formatter = logging.Formatter(format)
     logging.basicConfig(format=format)
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     # FileHandler
     file_handler = RotatingFileHandler(

@@ -12,7 +12,9 @@ def getUUID():
 
 
 def report(t):
-    ReportThread(t).start()
+    to_report = config.get("statistic", True)
+    if to_report:
+        ReportThread(t).start()
 
 
 class ReportThread(threading.Thread):
@@ -22,17 +24,15 @@ class ReportThread(threading.Thread):
         self.t = t
 
     def run(self):
-        to_report = config.get("statistic", True)
-        if to_report:
-            try:
-                persona = config.get("robot_name_cn", "孙悟空")
-                url = "http://livecv.hahack.com:8022/statistic"
-                payload = {
-                    "type": str(self.t),
-                    "uuid": getUUID(),
-                    "name": persona,
-                    "project": "wukong",
-                }
-                requests.post(url, data=payload, timeout=3)
-            except Exception:
-                return
+        try:
+            persona = config.get("robot_name_cn", "孙悟空")
+            url = "http://livecv.hahack.com:8022/statistic"
+            payload = {
+                "type": str(self.t),
+                "uuid": getUUID(),
+                "name": persona,
+                "project": "wukong",
+            }
+            requests.post(url, data=payload, timeout=3)
+        except Exception:
+            return

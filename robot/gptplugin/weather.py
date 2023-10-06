@@ -1,14 +1,11 @@
 # Import things that are needed genericallyI
-from langchain.tools import BaseTool, StructuredTool, Tool, tool
-from typing import Optional, Type
-from robot import config, logging
-import requests
-import json
+from typing import Optional
 
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
+import requests
+from langchain.callbacks.manager import CallbackManagerForToolRun
+from langchain.tools import BaseTool
+
+from robot import config, logging
 
 logger = logging.getLogger(__name__)
 
