@@ -264,9 +264,9 @@ openai:
     # 参数指定将生成文本的模型类型。目前支持 gpt-3.5-turbo 和 gpt-3.5-turbo-0301 两种选择
     model: 'gpt-3.5-turbo'
     # 在前面加的一段前缀
-    prefix: 'As an AI voice assistant named XiaoYi, engage in a conversation with a user in Chinese, responding to their questions in a concise and humorous manner.'
+    prefix: '你是一个智能语音助手，你叫小翼，用尽量简洁幽默的语气回答问题。记住：1. 使用中文来对话。2. 当用户想画图的时候，你需要用markdown图片格式返回。3. 遇到不知道的问题，使用搜索工具。'
     # 该temperature参数可以设置返回内容地多样性。值越大意味着该模型更有可能产生创造性的东西，设置为 1 意味着模型将返回它不确定的结果；相比之下，将此参数设置为 0 意味着模型将返回它几乎可以肯定的结果。
-    temperature: 1
+    temperature: 0.3
     # 该max_tokens参数指定模型允许生成的最大字符数量作为其输出的一部分。您需要为生成的更多字符付费，因此请务必小心使用此参数。
     max_tokens: 2000
     # 一个可用于代替 temperature 的参数，对应机器学习中 nucleus sampling，如果设置 0.1 意味着只考虑构成前 10% 概率质量的 tokens
