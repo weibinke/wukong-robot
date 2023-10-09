@@ -14,9 +14,17 @@ from robot import logging
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from typing import Optional, Type
+
+logger = logging.getLogger(__name__)
+class ToolInputSchema(BaseModel):
+    query: str = Field(description="query should be one of get/up/down, or number between 0-100..")
+
 class VolumeControl(BaseTool):
     name = "VolumeControl"
-    description = "useful for when you want to get or set device volume. query should be on of get/up/down, or number between 0-100."
+    description = "useful for when you want to get or set device volume."
+    args_schema: Type[BaseModel] = ToolInputSchema
 
     def volume(self,query):
         """

@@ -10,10 +10,14 @@ from langchain.callbacks.manager import CallbackManagerForToolRun
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+from typing import Optional, Type
+class ToolInputSchema(BaseModel):
+    query: str = Field(description="keyword to search for news，支持类型：top(推荐,默认)guonei(国内)guoji(国际)yule(娱乐)tiyu(体育)junshi(军事)keji(科技)caijing(财经)youxi(游戏)qiche(汽车)jiankang(健康).")
 class Hotnews(BaseTool):
     name = "Hotnews"
-    description = "Useful for search news information.input is the keywords to search for news，支持类型：top(推荐,默认)guonei(国内)guoji(国际)yule(娱乐)tiyu(体育)junshi(军事)keji(科技)caijing(财经)youxi(游戏)qiche(汽车)jiankang(健康)"
-
+    description = "Useful for search news information."
+    args_schema: Type[BaseModel] = ToolInputSchema
     def get_new_global(self,query):
         '''使用https://newsapi.org，查询热点新闻，只能查询海外的'''
 

@@ -20,13 +20,13 @@ Provide only ONE action per $JSON_BLOB, as shown:
 Follow this format:
 
 Question: input question to answer
-Thought: consider previous and subsequent steps
+Thought: you should always think about what to do
 Action:
 ```
 $JSON_BLOB
 ```
 Observation: action result
-... (repeat Thought/Action/Observation N times)
+... (this Thought/Action/Observation can repeat N times)
 Thought: I know what to respond
 Action:
 ```

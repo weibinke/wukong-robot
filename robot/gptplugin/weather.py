@@ -1,17 +1,20 @@
 # Import things that are needed genericallyI
-from typing import Optional
+from typing import Optional, Type
 
 import requests
 from langchain.callbacks.manager import CallbackManagerForToolRun
 from langchain.tools import BaseTool
+from pydantic import BaseModel, Field
 
 from robot import config, logging
 
 logger = logging.getLogger(__name__)
-
+class ToolInputSchema(BaseModel):
+    city: str = Field(description="should be city name.")
 class Weather(BaseTool):
     name = "Weather"
-    description = "useful for when you want to know weather.input must only be city."
+    description = "useful for when you want to know weather."
+    args_schema: Type[BaseModel] = ToolInputSchema
 
     def get_weather(self,city):
         logger.info("get_weather:" + city)
@@ -27,7 +30,7 @@ class Weather(BaseTool):
             result = requests.get(WEATHER_API, params=body, timeout=3)
             logger.info("fetch_weather result:" + result.text)
             
-            return f"天气查询，result:{result.text}"
+            return f"{result.text}"
         except Exception as e:
             logger.error(e)
 
@@ -35,7 +38,7 @@ class Weather(BaseTool):
 
 
     def _run(
-        self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None
+        self, city: str, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
-        return self.get_weather(query)
+        return self.get_weather(city)

@@ -19,7 +19,7 @@ DEFAULT_SYMBOLS = ['000001.SS', '^HSI', '^DJI', '0700.HK', 'BIDU']
 class Stock(BaseTool):
     name = "Stock"
     description = "Return stock prices and exchange rates."
-    args_schema: Type[ToolInputSchema] = ToolInputSchema
+    args_schema: Type[BaseModel] = ToolInputSchema
 
     def _run(
         self, symbols: str = None, run_manager: Optional[CallbackManagerForToolRun] = None
