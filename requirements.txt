@@ -29,3 +29,5 @@ google-search-results
 duckduckgo-search
 yfinance
 langchainhub
+opencv-python-4.8.1.78
+scikit-image-0.22.0

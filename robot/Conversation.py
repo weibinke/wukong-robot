@@ -126,6 +126,7 @@ class Conversation(object):
             import traceback
             traceback.print_exc()
             logger.critical(f"对话初始化失败：{e}", stack_info=True)
+            raise e
 
     def checkRestore(self):
         if self.immersiveMode:

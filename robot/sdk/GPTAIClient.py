@@ -1,19 +1,13 @@
-import json
 import os
-import sys
 import threading
 import time
 from datetime import datetime, timedelta
 from io import StringIO
-from itertools import islice
-from traceback import print_stack
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-import langchain
 import openai
-import requests
-from langchain.agents import AgentExecutor, Tool, load_tools
+from langchain.agents import AgentExecutor
 from langchain.agents.format_scratchpad import (format_log_to_str,
                                                 format_to_openai_functions)
 from langchain.agents.output_parsers import (JSONAgentOutputParser,
@@ -23,10 +17,8 @@ from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import AgentFinish, LLMResult
-from langchain.tools import Tool
 from langchain.tools.render import (format_tool_to_openai_function,
                                     render_text_description_and_args)
-from sympy import false
 
 from robot import config, logging
 from robot.gptplugin import prompt as agent_prompt
@@ -68,6 +60,10 @@ class GPTAgent():
         self.model = model
         self.temperature = temperature
         self.api_base = api_base
+        if self.api_base:
+            os.environ["OPENAI_API_BASE"] = api_base
+            openai.api_base = api_base # 有些组件不支持设置openai_api_base，通过这个规避下
+
         self.api_key = api_key
         self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
         

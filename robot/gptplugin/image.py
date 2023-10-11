@@ -1,10 +1,16 @@
+import os
 from typing import Optional, Type
+from langchain import OpenAI
 
 from langchain.callbacks.manager import CallbackManagerForToolRun
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
+from langchain.utilities.dalle_image_generator import DallEAPIWrapper
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from langchain.chat_models import ChatOpenAI
 
-from robot import logging
+from robot import config, logging
 
 logger = logging.getLogger(__name__)
 class ToolInputSchema(BaseModel):
@@ -23,3 +29,15 @@ class DrawImage(BaseTool):
             # {"url": f"https://images.unsplash.com/{prompt}"},
             ]
         return result
+        # api_key = config.get("/gpt_tool/sumary_openai_api_key")
+        # llm = OpenAI(temperature=0.9, openai_api_key=api_key)
+        # prompt = PromptTemplate(
+        #     input_variables=["image_desc"],
+        #     template="Generate a detailed prompt to generate an image based on the following description: {image_desc}",
+        # )
+        # chain = LLMChain(llm=llm, prompt=prompt)
+        # image_desc = chain.run(prompt)
+        # logger.info("DrawImage image_desc: {}".format(image_desc))
+        # image_url = DallEAPIWrapper(openai_api_key=api_key).run(image_desc)
+
+        # return image_url
