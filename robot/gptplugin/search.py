@@ -1,12 +1,9 @@
 # Import things that are needed genericallyI
 import os
-from pydoc import doc
 from langchain.tools import BaseTool
 from typing import Optional
-import outcome
 import requests
 
-from sympy import EX
 from robot import config, logging
 from langchain.callbacks.manager import CallbackManagerForToolRun
 from langchain.document_loaders import WebBaseLoader
@@ -19,7 +16,6 @@ from langchain.document_loaders import PlaywrightURLLoader
 from pydantic import BaseModel, Field
 from typing import Optional, Type
 from langchain.utilities import BingSearchAPIWrapper
-from langchain.tools import DuckDuckGoSearchResults
 from langchain.utilities import DuckDuckGoSearchAPIWrapper
 from langchain.utilities import GoogleSerperAPIWrapper
 

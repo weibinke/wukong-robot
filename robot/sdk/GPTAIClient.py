@@ -22,7 +22,7 @@ from langchain.tools.render import (format_tool_to_openai_function,
 
 from robot import config, logging
 from robot.gptplugin import prompt as agent_prompt
-from robot.gptplugin.device_control import DeviceControl
+from robot.gptplugin.device_control import DeviceControl, DeviceStatus
 from robot.gptplugin.image import DrawImage
 from robot.gptplugin.information import Information
 from robot.gptplugin.news import Hotnews
@@ -72,6 +72,7 @@ class GPTAgent():
         tools.append(Browser())
         tools.append(SummaryWebpage())
         tools.append(VolumeControl())
+        tools.append(DeviceStatus())
         tools.append(Weather())
         tools.append(Hotnews())
         tools.append(Stock())
