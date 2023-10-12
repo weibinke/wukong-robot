@@ -293,10 +293,7 @@ class Conversation(object):
         :param onCompleted: 播放完成的操作
         """
         line = line.strip()
-        pattern = r"http[s]?://.+"
-        if re.match(pattern, line):
-            logger.info("内容包含URL，屏蔽后续内容")
-            return None
+        line = re.sub(r'http[s]?://\S+', '', line)
         line.replace("- ", "")
         if line:
             result = self._ttsAction(line, cache, index, onCompleted)
@@ -310,17 +307,13 @@ class Conversation(object):
         :param cache: 是否缓存 TTS 结果
         """
         audios = []
-        pattern = r"http[s]?://.+"
         logger.info("_tts")
         with self.tts_lock:
             with ThreadPoolExecutor(max_workers=5,thread_name_prefix="tts") as pool:
                 all_task = []
                 index = 0
                 for line in lines:
-                    if re.match(pattern, line):
-                        logger.info("内容包含URL，屏蔽后续内容")
-                        self.tts_count -= 1
-                        continue
+                    line = re.sub(r'http[s]?://\S+', '', line)
                     if line:
                         task = pool.submit(
                             self._ttsAction, line.strip(), cache, index, onCompleted

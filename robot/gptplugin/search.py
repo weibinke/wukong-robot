@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # ssl_context.verify_mode = ssl.CERT_NONE
 
 class SearchToolInputSchema(BaseModel):
-    query: str = Field(description="search query.")
+    query: str = Field(description="search query")
 class BingSearchTool(BaseTool):
     name = "Search"
     description = "A Bing Search Engine. Useful when you need to search information you don't know."

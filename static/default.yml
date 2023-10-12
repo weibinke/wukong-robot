@@ -355,6 +355,9 @@ gpt_tool:
     # 使用自己的search proxy，解决ddg联网问题，可以参考这个项目搭建：https://github.com/weibinke/searchapi
     CUSTOM_SEARCH_PROXY_BASE: "http://xx.xx.com:5555/search"
     CUSTOM_SEARCH_PROXY_KEY: ""
+    # Langfuse key，llm可视化trace，https://cloud.langfuse.com/
+    langfuse_public_key: ""
+    langfuse_secret_key: ""
 
 
     # 会话上下文有效期，超过这个时间没对话，则清空上下文，减少token消耗，单位是秒

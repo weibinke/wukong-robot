@@ -19,13 +19,14 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import AgentFinish, LLMResult
 from langchain.tools.render import (format_tool_to_openai_function,
                                     render_text_description_and_args)
+from langfuse.callback import CallbackHandler
 
 from robot import config, logging
 from robot.gptplugin import prompt as agent_prompt
 from robot.gptplugin.device_control import DeviceControl, DeviceStatus
 from robot.gptplugin.image import DrawImage
 from robot.gptplugin.information import Information
-from robot.gptplugin.news import Hotnews
+from robot.gptplugin.news import Hotnews, Hotnews_vvhan
 from robot.gptplugin.reset_conversation import ResetConversation
 from robot.gptplugin.search import BingSearchTool, Browser, SummaryWebpage
 from robot.gptplugin.stock import Stock
@@ -74,6 +75,7 @@ class GPTAgent():
         tools.append(VolumeControl())
         tools.append(DeviceStatus())
         tools.append(Weather())
+        tools.append(Hotnews_vvhan())
         tools.append(Hotnews())
         tools.append(Stock())
         tools.append(DrawImage())
@@ -83,9 +85,19 @@ class GPTAgent():
             tools.append(DeviceControl())
         self.tools = tools
 
-        self.init_agent(streaming=False)
+        self.callbacks = []
+        langfuse_public_key = config.get("/gpt_tool/langfuse_public_key")
+        langfuse_secret_key = config.get("/gpt_tool/langfuse_secret_key")
+        if langfuse_public_key and langfuse_secret_key:
+            self.langfuse_handler = CallbackHandler(public_key=langfuse_public_key, secret_key=langfuse_secret_key)
 
-    def init_agent_opeanai_functions(self, streaming=False):
+        streaming = False
+        if streaming:
+            self.callbacks.append(CustomFinalAnswerCallbackHandler())
+
+        self.init_agent()
+
+    def init_agent_opeanai_functions(self):
         '''使用openai function call实现agent'''
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", self.prefix),
@@ -93,12 +105,8 @@ class GPTAgent():
             ("user","{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad")
         ])
-        
-        if streaming:
-            self.callback = CustomFinalAnswerCallbackHandler()
-            self.llm = ChatOpenAI(model=self.model, temperature=self.temperature,openai_api_key=self.api_key, openai_api_base=self.api_base, verbose=True, streaming=True, callbacks=[self.callback])
-        else:
-            self.llm = ChatOpenAI(model=self.model, temperature=self.temperature,openai_api_key=self.api_key, openai_api_base=self.api_base, verbose=True)
+
+        self.llm = ChatOpenAI(model=self.model, temperature=self.temperature,openai_api_key=self.api_key, openai_api_base=self.api_base, verbose=True, streaming=True, callbacks=self.callbacks)
 
         llm_with_tools = self.llm.bind(functions=[format_tool_to_openai_function(t) for t in self.tools])
         # 注意这里memory的用法，"chat_history": lambda x: self.memory.buffer_as_messages,配合prompt模板里的MessagesPlaceholder(variable_name="chat_history")一起用
@@ -108,12 +116,9 @@ class GPTAgent():
             "agent_scratchpad": lambda x: format_to_openai_functions(x['intermediate_steps']),
         } | self.prompt | llm_with_tools | OpenAIFunctionsAgentOutputParser()
         
-        if streaming:
-            self.agent_executor = AgentExecutor(agent=agent,tools=self.tools, memory=self.memory,verbose=True,handle_parsing_errors=True,callbacks=[self.callback],max_iterations=15)
-        else:
-            self.agent_executor = AgentExecutor(agent=agent,tools=self.tools, memory=self.memory,verbose=True,handle_parsing_errors=True,max_iterations=15)
+        self.agent_executor = AgentExecutor(agent=agent,tools=self.tools, memory=self.memory,verbose=True,handle_parsing_errors=True,callbacks=self.callbacks,max_iterations=15)
 
-    def init_agent_with_react(self,streaming=False):
+    def init_agent_with_react(self):
         '''使用react-multi-input-json实现agent'''
         # prompt = hub.pull("hwchase17/react-multi-input-json")
         self.prompt = ChatPromptTemplate.from_messages([
@@ -122,12 +127,7 @@ class GPTAgent():
             ("human",agent_prompt.HUMAN)
             ])
         
-        if streaming:
-            self.callback = CustomFinalAnswerCallbackHandler()
-            self.llm = ChatOpenAI(model=self.model, temperature=self.temperature,openai_api_key=self.api_key, openai_api_base=self.api_base, verbose=True, streaming=True, callbacks=[self.callback])
-        else:
-            self.llm = ChatOpenAI(model=self.model, temperature=self.temperature,openai_api_key=self.api_key, openai_api_base=self.api_base, verbose=True)
-
+        self.llm = ChatOpenAI(model=self.model, temperature=self.temperature,openai_api_key=self.api_key, openai_api_base=self.api_base, verbose=True, streaming=True, callbacks=self.callbacks)
         self.prompt = self.prompt.partial(
             prefix=self.prefix,
             tools=render_text_description_and_args(self.tools),
@@ -141,13 +141,10 @@ class GPTAgent():
             "agent_scratchpad": lambda x: format_log_to_str(x['intermediate_steps']),
         } | self.prompt | llm_with_stop | JSONAgentOutputParser()
         
-        if streaming:
-            self.agent_executor = AgentExecutor(agent=agent,tools=self.tools, memory=self.memory,verbose=True,handle_parsing_errors=True,callbacks=[self.callback],max_iterations=15)
-        else:
-            self.agent_executor = AgentExecutor(agent=agent,tools=self.tools, memory=self.memory,verbose=True,handle_parsing_errors=True,max_iterations=15)
+        self.agent_executor = AgentExecutor(agent=agent,tools=self.tools, memory=self.memory,verbose=True,handle_parsing_errors=True,callbacks=self.callbacks,max_iterations=15)
 
-    def init_agent(self, streaming=False):
-        self.init_agent_opeanai_functions(streaming)
+    def init_agent(self):
+        self.init_agent_opeanai_functions()
 
     def chat(self, texts):
         # 如果上一次聊天超过一段时间了，则清空张上下文，减少token消耗
@@ -380,8 +377,14 @@ class CustomFinalAnswerCallbackHandler(BaseCallbackHandler):
             self.output_queue.write(token)
             self.output_queue.flush()
 
-
-    def on_agent_finish(self, finish: AgentFinish, *, run_id: UUID, parent_run_id: UUID | None = None, **kwargs: Any) -> Any:
+    def on_agent_finish(
+        self,
+        finish: AgentFinish,
+        *,
+        run_id: UUID,
+        parent_run_id: Optional[UUID] = None,
+        **kwargs: Any,
+    ) -> Any:
         # 如果之前没有解析到response，说明出错了，这里把结果设置回去，让外部能读取到
         logger.info("on_agent_finish finish=%s",finish)
         if not self.answer_ended:
