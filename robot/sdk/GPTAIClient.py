@@ -256,59 +256,6 @@ class GPTAgent():
                 yield "抱歉，OpenAI 回答失败。"
             return generate
 
-# # Define a class that parses output for conversational agents
-# class FixConvoOutputParser(AgentOutputParser):
-#     """Output parser for the conversational agent."""
-
-#     def get_format_instructions(self) -> str:
-#         """Returns formatting instructions for the given output parser."""
-#         return FORMAT_INSTRUCTIONS
-
-#     def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
-#         """Attempts to parse the given text into an AgentAction or AgentFinish.
-
-#         Raises:
-#              OutputPar·serException if parsing fails.
-#         """
-#         try:
-#             # Attempt to parse the text into a structured format (assumed to be JSON
-#             # stored as markdown)
-#             response = parse_json_markdown(text)
-
-#             # If the response contains an 'action' and 'action_input'
-#             if "action" in response and "action_input" in response:
-#                 action, action_input = response["action"], response["action_input"]
-
-#                 # If the action indicates a final answer, return an AgentFinish
-#                 if action == "Final Answer":
-#                     return AgentFinish({"output": action_input}, text)
-#                 else:
-#                     # Otherwise, return an AgentAction with the specified action and
-#                     # input
-#                     return AgentAction(action, action_input, text)
-#             else:
-#                 # # If the necessary keys aren't present in the response, raise an
-#                 # # exception
-#                 # raise OutputParserException(
-#                 #     f"Missing 'action' or 'action_input' in LLM output: {text}"
-#                 # )
-#                 # GPT 3.5 经常不会正确返回json，兼容下
-#                 logger.error(
-#                     "parse error, gpt does not response json formate. text=" + text)
-#                 return AgentFinish({"output": text}, text)
-#         except Exception as e:
-#             # # If any other exception is raised during parsing, also raise an
-#             # # OutputParserException
-#             # raise OutputParserException(f"Could not parse LLM output: {text}") from e
-#             logger.error(
-#                 "parse error, gpt does not response json formate. text=" + text)
-#             return AgentFinish({"output": text}, text)
-
-#     @property
-#     def _type(self) -> str:
-#         return "conversational_chat"
-
-
 """Callback Handler streams to stdout on new llm token."""
 DEFAULT_ANSWER_PREFIX_TOKENS = '''
 "action":"FinalAnswer","action_input":"
