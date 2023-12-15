@@ -1,11 +1,7 @@
-from datetime import datetime
 import os
 from typing import Optional, Type
 
 import requests
-import tushare as ts
-import yfinance as yf
-from bs4 import BeautifulSoup
 from langchain.callbacks.manager import CallbackManagerForToolRun
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field

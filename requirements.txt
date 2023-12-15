@@ -21,10 +21,7 @@ asyncio==3.4.3
 edge-tts==6.1.8
 nest_asyncio==1.5.7
 bs4==0.0.1
-tushare==1.2.89
 langchain==0.0.309
 google-search-results==2.4.2
-duckduckgo-search==3.9.3
-yfinance==0.2.30
 langchainhub==0.1.13
 langfuse==1.0.35
