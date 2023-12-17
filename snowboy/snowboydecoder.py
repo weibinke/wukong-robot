@@ -380,7 +380,6 @@ class HotwordDetector(object):
 
                     if (
                         audio_recorder_callback
-                        and status == 1
                         and utils.is_proper_time()
                     ):
                         state = "ACTIVE"

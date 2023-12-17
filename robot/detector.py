@@ -94,10 +94,10 @@ def initDetector(wukong):
         logger.info("使用 snowboy 进行离线唤醒")
         detector and detector.terminate()
 
-        models = constants.getHotwordModel(config.get("hotword", "wukong.pmdl"))
+        # models = constants.getHotwordModel(config.get("hotword", "wukong.pmdl"))
         # # TODO hotword支持配置多个，该了之后，第二个唤醒词没有正常录音，先保持一个，后面再解决
-        # model_paths = config.get("hotword", ["wukong.pmdl"])
-        # models = [constants.getHotwordModel(w) for w in model_paths]
+        model_paths = config.get("hotword", ["wukong.pmdl"])
+        models = [constants.getHotwordModel(w) for w in model_paths]
 
         detector = snowboydecoder.HotwordDetector(
             models, sensitivity=config.get("sensitivity", 0.5)
