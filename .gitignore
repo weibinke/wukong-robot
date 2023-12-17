@@ -90,6 +90,7 @@ sftp-config.json
 __pycache__
 
 venv.wukong
+.venv
 .vscode/launch.json
 .vscode/settings.json
 
