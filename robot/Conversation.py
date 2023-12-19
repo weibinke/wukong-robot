@@ -64,6 +64,7 @@ class Conversation(object):
             onCompleted and onCompleted()
 
     def _ttsAction(self, msg, cache, index, onCompleted=None):
+        logger.info(f"_ttsAction start index:{index}, msg: {msg}")
         if msg:
             voice = utils.getCache(self.tts.get_cache_subpath(),msg)
             if voice:

@@ -204,7 +204,7 @@ class AzureTTS(AbstractTTS):
         # 识别正确返回语音二进制,http状态码为200
         if result.status_code == 200:
             tmpfile = utils.write_temp_file(result.content, ".mp3")
-            logger.info(f"{self.SLUG} 语音合成成功，合成路径：{tmpfile}")
+            # logger.info(f"{self.SLUG} 语音合成成功，合成路径：{tmpfile}")
             return tmpfile
         else:
             logger.critical(f"{self.SLUG} 合成失败！phrase:{phrase},result:{result.text}", stack_info=True)

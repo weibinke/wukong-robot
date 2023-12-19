@@ -98,7 +98,7 @@ class SoxPlayer(AbstractPlayer):
             (src, onCompleted) = self.play_queue.get()
             if src:
                 with self.play_lock:
-                    logger.info(f"开始播放音频：{src}")
+                    # logger.info(f"开始播放音频：{src}")
                     self.src = src
                     res = self.doPlay(src)
                     self.play_queue.task_done()
@@ -113,7 +113,7 @@ class SoxPlayer(AbstractPlayer):
             cmd = ["afplay", str(src)]
         else:
             cmd = ["play", str(src)]
-        logger.debug("Executing %s", " ".join(cmd))
+        # logger.debug("Executing %s", " ".join(cmd))
         self.proc = subprocess.Popen(
             cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
         )
@@ -122,7 +122,7 @@ class SoxPlayer(AbstractPlayer):
         self.playing = False
         if self.delete:
             utils.check_and_delete(src)
-        logger.info(f"播放完成：{src}")
+        # logger.info(f"播放完成：{src}")
         return self.proc and self.proc.returncode == 0
 
     def play(self, src, delete=False, onCompleted=None):
