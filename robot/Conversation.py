@@ -314,7 +314,7 @@ class Conversation(object):
                 all_task = []
                 index = 0
                 for line in lines:
-                    line = re.sub(r'http[s]?://\S+', '', line)
+                    line = re.sub(r'http[s]?://\S+', '', line).strip()
                     if line:
                         task = pool.submit(
                             self._ttsAction, line.strip(), cache, index, onCompleted
