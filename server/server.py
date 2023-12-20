@@ -21,10 +21,13 @@ from urllib.parse import unquote
 from robot.sdk.History import History
 from robot import config, utils, logging, Updater, constants
 from tools import make_json, solr_tools
+from robot import Conversation
+from wukong import Wukong
 
 logger = logging.getLogger(__name__)
 
-conversation, wukong = None, None
+conversation:Conversation = None
+wukong:Wukong = None
 commiting = False
 
 suggestions = [
@@ -38,7 +41,6 @@ suggestions = [
     "你叫什么名字",
     "讲个笑话",
 ]
-
 
 class BaseHandler(tornado.web.RequestHandler):
     def isValidated(self):
@@ -214,7 +216,6 @@ class TalkStatusHandler(BaseHandler):
     """
     查询当前是否正在播放回答中
     """
-
     async def get(self):
         # logger.info("TalkStatusHandler post start")
         global conversation
@@ -227,10 +228,22 @@ class TalkStatusHandler(BaseHandler):
             # logger.info(f"TalkStatusHandler post end,isPlaying:{res}")
             self.write(json.dumps(res))
         self.finish()
-        
 
-    def on_connection_close(self):
-        self.wait_future.cancel()
+class FaceDetectHandler(BaseHandler):
+    """检测到人脸，播报欢迎词"""
+    def get(self):
+        global conversation
+        if not self.validate(self.get_argument("validate", default=None)):
+            res = {"code": 1, "message": "illegal visit"}
+            self.write(json.dumps(res))
+        else:
+            # 播放欢迎词
+            face = self.get_argument("face", default="")
+            if face:
+                conversation.say(f"你好啊，{face}", cache=True)
+            res = {"code": 0, "message": "ok"}
+            self.write(json.dumps(res))
+        self.finish()
 
 
 class GetHistoryHandler(BaseHandler):
@@ -506,6 +519,7 @@ def start_server(con, wk):
                 (r"/gethistory", GetHistoryHandler),
                 (r"/getconfig", ConfigHandler),
                 (r"/talk_status", TalkStatusHandler),
+                (r"/face_dectect", FaceDetectHandler),
                 (
                     r"/photo/(.+\.(?:png|jpg|jpeg|bmp|gif|JPG|PNG|JPEG|BMP|GIF))",
                     tornado.web.StaticFileHandler,
